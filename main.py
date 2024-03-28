@@ -16,3 +16,8 @@ print("")
 print("Getting Error Messages")
 getSystemAlerts()
 print("")
+
+
+print("Getting Current Buses")
+getBuses()
+print("")
