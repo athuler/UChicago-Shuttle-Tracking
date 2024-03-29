@@ -1,4 +1,7 @@
 import requests
+import websocket
+import json
+from dataHandling import *
 
 BASE_URL = "https://passiogo.com"
 
@@ -90,7 +93,8 @@ def getAllStops(
 	# Process Response
 	print("Stops Length:",len(stops["stops"]))
 	for index, stop in stops["stops"].items():
-		print(stop["name"],"(" ,stop["stopId"],")", "\t\t Route:", stop["routeId"], "/", stop["routeName"])
+		#print(stop)
+		print("#",stop["stopId"],"-",stop["name"],"- Route:", stop["routeName"],"(",stop["routeId"],") - Lat/Lon: (",stop["latitude"],"/",stop["longitude"],")")
 	
 	print("\n")
 	print("Route Length:",len(stops["routes"]))
@@ -133,8 +137,16 @@ def getSystemAlerts(
 		print("Response:", response.text)
 		exit(e)
 	
+	
 	# Process Response
-	print(errorMsg)
+	if(errorMsg["error"] != ""):
+		print("Error:", errorMsg["error"])
+	else:
+		print("No Alerts!")
+	
+	for msg in errorMsg["msgs"]:
+		print(msg)
+	
 	return(errorMsg)
 
 
@@ -163,12 +175,51 @@ def getBuses(
 	
 	# Validate JSON Response
 	try:
-		errorMsg = response.json()
+		buses = response.json()["buses"]
 	except Exception as e:
 		print("Response:", response.text)
 		exit(e)
 	
 	# Process Response
-	print(errorMsg)
-	return(errorMsg)
+	for index,bus in buses.items():
+		bus = bus[0]
+		#print(bus,"\n")
+		print("#", bus["busId"], bus["route"],"(",bus["routeId"],") - CalcCourse:",
+			round(float(bus["calculatedCourse"]), 2),
+			"Lat/Lon: (",bus["latitude"],"/",bus["longitude"],")"
+		)
+	return(buses)
+
+
+
+# Launch WebSocket
+def launchWS():
+	uri = "wss://passio3.com/"
+	#websocket.enableTrace(True) # For Debugging
+	wsapp = websocket.WebSocketApp(
+							uri,
+							on_open = subscribeWS,
+							on_message = handleNewWsMessage
+			)
+	print("Started WebSocket!")
+	wsapp.run_forever()
+	print("Connection Closed")
+	launchWS()
+	
+	
+	
+def subscribeWS(wsapp):
+	
+	subscriptionMsg = {
+		"subscribe":"location",
+		"userId":[1068],
+		#"filter":{"outOfService":0,"busId":[12642,12643,12645,12646,12647,12648,4313,4318,4320,4321,4322,4324,4331]},
+		"field":["busId","latitude","longitude","course","paxLoad","more"]
+	}
+	print(json.dumps(subscriptionMsg))
+	wsapp.send(json.dumps(subscriptionMsg))
+	
+	print("Subscribed!")
+
+
 	
