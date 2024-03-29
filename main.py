@@ -28,20 +28,55 @@ def display():
 		print("========================")
 		print("Main Display")
 		print("========================")
-		print("Active Buses:")
+		
+		
+		print("Active Buses ("+str(len(vars.currentBuses))+"):")
+		
+		# No Bus In Service
+		if(len(vars.currentBuses) == 0):
+			print("No buses in service")
+		
+		# Display Buses sorted by BusID
+		for index, bus in {key: val for key, val in sorted(vars.currentBuses.items(), key = lambda ele: ele[0])}.items():
+			
+			# Style line
+			if(bus.route == None):
+				STARTC = vars.bcolors.WARNING
+			elif(bus.pax == None):
+				STARTC = vars.bcolors.FAIL
+			else:
+				STARTC = vars.bcolors.OKGREEN
+			
+			# Compute Time Since Ping
+			if(bus.last_ping == None):
+				ping = "Never"
+			else:
+				ping = str(bus.ageSeconds())
+				
+			print(STARTC+"#"+str(index)+"\t| ",bus.pax,"pax\t| Route #"+str(bus.route)+"-"+str(bus.routeName)+"\t|  "+\
+				#"("+str(bus.lat)+"/"+str(bus.lon)+")" +\
+				"Age:"+ping+"s"+\
+				vars.bcolors.ENDC)
 
 		print("========================")
 
 		print("Live Data:")
-		for msg in vars.recentMsgs[-5:]:
+		for msg in vars.recentMsgs[-3:]:
 			print(msg)
 		
 		print("========================")
 		
 		print("Recent Logs:")
-		for log in vars.logs[-5:]:
+		for log in vars.logs[-3:]:
 			print(log)
 		
+		print("========================")
+		
+		print("System Alerts:")
+		if(len(vars.systemAlerts) == 0):
+			print("No alerts")
+		for alert in vars.systemAlerts[-5:]:
+			print("->",alert)
 		print("========================")
 		
 		print("Recent Errors:")
@@ -52,7 +87,7 @@ def display():
 		
 		print("========================")
 		
-		time.sleep(0.5)
+		time.sleep(0.7)
 
 if __name__ == "__main__":
 	shutDownEvent = threading.Event()

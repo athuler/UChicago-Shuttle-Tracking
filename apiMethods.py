@@ -157,6 +157,10 @@ def getSystemAlerts(
 		for msg in errorMsg["msgs"]:
 			print(msg)
 	
+	vars.systemAlerts = []
+	for msg in errorMsg["msgs"]:
+		vars.systemAlerts.append(msg["gtfsAlertDescriptionText"])
+	
 	return(errorMsg)
 
 
@@ -192,7 +196,7 @@ def getBuses(
 		vars.errors.append(e)
 		exit(e)
 	
-	# Process Response
+	# Debugging
 	if(debug):
 		for index,bus in buses.items():
 			bus = bus[0]
@@ -201,6 +205,19 @@ def getBuses(
 				round(float(bus["calculatedCourse"]), 2),
 				"Lat/Lon: (",bus["latitude"],"/",bus["longitude"],")"
 			)
+	
+	# Process Response
+	try:
+		for index,bus in buses.items():
+			bus = bus[0]
+			if(bus["busId"] not in vars.currentBuses):
+				vars.currentBuses[bus["busId"]] = vars.Bus(bus["busId"])
+			vars.currentBuses[bus["busId"]].route = bus["routeId"]
+			vars.currentBuses[bus["busId"]].routeName = bus["route"]
+	except Exception as e:
+		vars.errors.append(e)
+	
+	
 	return(buses)
 
 
