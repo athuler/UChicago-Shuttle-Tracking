@@ -2,6 +2,7 @@ import requests
 import websocket
 import json
 from dataHandling import *
+import vars
 
 BASE_URL = "https://passiogo.com"
 
@@ -9,7 +10,8 @@ BASE_URL = "https://passiogo.com"
 def getAllRoutes(
 	systemSelected = 1068,
 	paramDigit = 1,
-	amount = 1
+	amount = 1,
+	debug = 0
 ):
 	"""
 	Obtains every route for the selected system.
@@ -37,6 +39,7 @@ def getAllRoutes(
 		routes = response.json()
 	except Exception as e:
 		print("Response:", response.text)
+		vars.errors.append(e)
 		exit(e)
 	
 	
@@ -46,13 +49,14 @@ def getAllRoutes(
 	
 	
 	# Process Response
-	print("Length:", len(routes))
-	for route in routes:
-		if "groupId" not in route:
-			groupId = "None"
-		else:
-			groupId = route["groupId"]
-		print(route["name"],"(",route["myid"],"/",groupId,")")
+	if(debug):
+		print("Length:", len(routes))
+		for route in routes:
+			if "groupId" not in route:
+				groupId = "None"
+			else:
+				groupId = route["groupId"]
+			print(route["name"],"(",route["myid"],"/",groupId,")")
 	
 	return(routes)
 
@@ -60,7 +64,8 @@ def getAllRoutes(
 def getAllStops(
 	paramDigit = 2,
 	systemSelected = 1068,
-	sA = 1
+	sA = 1,
+	debug = 0
 ):
 	"""
 	Obtains all stop for the selected system.
@@ -88,27 +93,30 @@ def getAllStops(
 		stops = response.json()
 	except Exception as e:
 		print("Response:", response.text)
+		vars.errors.append(e)
 		exit(e)
 	
 	# Process Response
-	print("Stops Length:",len(stops["stops"]))
-	for index, stop in stops["stops"].items():
-		#print(stop)
-		print("#",stop["stopId"],"-",stop["name"],"- Route:", stop["routeName"],"(",stop["routeId"],") - Lat/Lon: (",stop["latitude"],"/",stop["longitude"],")")
-	
-	print("\n")
-	print("Route Length:",len(stops["routes"]))
-	for index, route in stops["routes"].items():
-		print(route[0])
-		for stopNum in range(2,len(route)):
-			print("\tStop #",route[stopNum][0], "| id:", route[stopNum][1])
+	if(debug):
+		print("Stops Length:",len(stops["stops"]))
+		for index, stop in stops["stops"].items():
+			#print(stop)
+			print("#",stop["stopId"],"-",stop["name"],"- Route:", stop["routeName"],"(",stop["routeId"],") - Lat/Lon: (",stop["latitude"],"/",stop["longitude"],")")
+		
+		print("\n")
+		print("Route Length:",len(stops["routes"]))
+		for index, route in stops["routes"].items():
+			print(route[0])
+			for stopNum in range(2,len(route)):
+				print("\tStop #",route[stopNum][0], "| id:", route[stopNum][1])
 	
 	return(stops)
 
 
 def getSystemAlerts(
 	paramDigit = 1,
-	systemSelected = 1068
+	systemSelected = 1068,
+	debug = 0
 ):
 	"""
 	Gets all system alerts for the selected system.
@@ -135,24 +143,27 @@ def getSystemAlerts(
 		errorMsg = response.json()
 	except Exception as e:
 		print("Response:", response.text)
+		vars.errors.append(e)
 		exit(e)
 	
 	
 	# Process Response
-	if(errorMsg["error"] != ""):
-		print("Error:", errorMsg["error"])
-	else:
-		print("No Alerts!")
-	
-	for msg in errorMsg["msgs"]:
-		print(msg)
+	if(debug):
+		if(errorMsg["error"] != ""):
+			print("Error:", errorMsg["error"])
+		else:
+			print("No Alerts!")
+		
+		for msg in errorMsg["msgs"]:
+			print(msg)
 	
 	return(errorMsg)
 
 
 def getBuses(
 	paramDigit = 2,
-	s0 = 1068
+	s0 = 1068,
+	debug = 0
 ):
 	"""
 	Gets all currently running buses.
@@ -178,16 +189,18 @@ def getBuses(
 		buses = response.json()["buses"]
 	except Exception as e:
 		print("Response:", response.text)
+		vars.errors.append(e)
 		exit(e)
 	
 	# Process Response
-	for index,bus in buses.items():
-		bus = bus[0]
-		#print(bus,"\n")
-		print("#", bus["busId"], bus["route"],"(",bus["routeId"],") - CalcCourse:",
-			round(float(bus["calculatedCourse"]), 2),
-			"Lat/Lon: (",bus["latitude"],"/",bus["longitude"],")"
-		)
+	if(debug):
+		for index,bus in buses.items():
+			bus = bus[0]
+			#print(bus,"\n")
+			print("#", bus["busId"], bus["route"],"(",bus["routeId"],") - CalcCourse:",
+				round(float(bus["calculatedCourse"]), 2),
+				"Lat/Lon: (",bus["latitude"],"/",bus["longitude"],")"
+			)
 	return(buses)
 
 
@@ -201,9 +214,9 @@ def launchWS():
 							on_open = subscribeWS,
 							on_message = handleNewWsMessage
 			)
-	print("Started WebSocket!")
+	vars.logs.append("Connected!")
 	wsapp.run_forever()
-	print("Connection Closed")
+	vars.logs.append("Connection Closed. Reconnecting...")
 	launchWS()
 	
 	
@@ -216,10 +229,9 @@ def subscribeWS(wsapp):
 		#"filter":{"outOfService":0,"busId":[12642,12643,12645,12646,12647,12648,4313,4318,4320,4321,4322,4324,4331]},
 		"field":["busId","latitude","longitude","course","paxLoad","more"]
 	}
-	print(json.dumps(subscriptionMsg))
 	wsapp.send(json.dumps(subscriptionMsg))
 	
-	print("Subscribed!")
+	vars.logs.append("Subscribed!")
 
 
 	

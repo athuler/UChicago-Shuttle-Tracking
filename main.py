@@ -12,34 +12,27 @@ vars.init()
 def refreshData():
 	global logs
 	
-	while True:
-		vars.logs.append("Getting All Routes")
+	while shutDownEvent.is_set():
+		vars.logs.append("Reloading Data...")
 		getAllRoutes()
-
-
-		vars.logs.append("Getting All Stops")
 		getAllStops()
-
-
-		vars.logs.append("Getting Error Messages")
 		getSystemAlerts()
-
-
-		vars.logs.append("Getting Current Buses")
 		getBuses()
+		vars.logs.append("Reloaded!")
 		
-		time.sleep(15)
+		time.sleep(10)
 
 def display():
-	while True:
+	while shutDownEvent.is_set():
 		os.system('cls')
 		print("========================")
 		print("Main Display")
 		print("========================")
+		print("Active Buses:")
 
-		
-		print("Recent Messages:")
-		print(vars.recentMsgs)
+		print("========================")
+
+		print("Live Data:")
 		for msg in vars.recentMsgs[-5:]:
 			print(msg)
 		
@@ -51,14 +44,37 @@ def display():
 		
 		print("========================")
 		
+		print("Recent Errors:")
+		if(len(vars.errors) == 0):
+			print("No errors")
+		for error in vars.errors[-5:]:
+			print(error)
+		
+		print("========================")
+		
 		time.sleep(0.5)
 
 if __name__ == "__main__":
+	shutDownEvent = threading.Event()
+	shutDownEvent.set()
+	
 	t1_dataRefresh = threading.Thread(target = refreshData, name="Data Refresh")
 	t2_launchWs = threading.Thread(target = launchWS, name="Launch WS")
+	t2_launchWs.daemon = True
 	t3_display = threading.Thread(target = display, name="Display")
 	
 	t1_dataRefresh.start()
 	t2_launchWs.start()
 	t3_display.start()
+	
+	
+	try:
+		while 1:
+			time.sleep(.1)
+	except KeyboardInterrupt:
+		print("Shutting Down...")
+		shutDownEvent.clear()
+		t1_dataRefresh.join()
+		t3_display.join()
+		print("Shut down!")
 
