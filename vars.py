@@ -25,11 +25,15 @@ class BusStop:
 		self.name = name
 		self.lat = lat
 		self.lon = lon
+		self.routes = []
 
 def init():
 	
 	global currentBuses
 	currentBuses = {}
+	
+	global busStops
+	busStops = {}
 	
 	global logs
 	logs = []

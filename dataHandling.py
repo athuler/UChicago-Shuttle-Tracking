@@ -21,7 +21,7 @@ def handleNewWsMessage(wsapp, message):
 		vars.currentBuses[message["busId"]].last_ping = datetime.now()
 		
 	except Exception as e:
-		vars.errors.append(e)
+		vars.errors.append("->MessageHandlingError:"+str(e))
 	
 	
 	

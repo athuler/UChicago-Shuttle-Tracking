@@ -96,7 +96,7 @@ def getAllStops(
 		vars.errors.append(e)
 		exit(e)
 	
-	# Process Response
+	# Debug
 	if(debug):
 		print("Stops Length:",len(stops["stops"]))
 		for index, stop in stops["stops"].items():
@@ -109,6 +109,35 @@ def getAllStops(
 			print(route[0])
 			for stopNum in range(2,len(route)):
 				print("\tStop #",route[stopNum][0], "| id:", route[stopNum][1])
+	
+	# Process Response
+	try:
+		busStops = {}
+		
+		# Save All Bus Stops
+		for index, stop in stops["stops"].items():
+			busStops[int(stop["stopId"])] = vars.BusStop(
+				id = int(stop["stopId"]),
+				name = stop["name"],
+				lat = stop["latitude"],
+				lon = stop["longitude"]
+			)
+		
+		# Add Routes to Bus Stops
+		for routeId, route in stops["routes"].items():
+			for stop in route[3:]:
+				stopId = int(stop[1])
+				
+				if(stopId not in busStops):
+					vars.logs.append("Stop #"+str(stopId)+"Does Not Exist!")
+					continue
+				
+				busStops[stopId].routes.append(routeId)
+		
+	except Exception as e:
+		vars.errors.append("->BusStopError:"+str(e))
+		
+	
 	
 	return(stops)
 
@@ -142,8 +171,7 @@ def getSystemAlerts(
 	try:
 		errorMsg = response.json()
 	except Exception as e:
-		print("Response:", response.text)
-		vars.errors.append(e)
+		vars.errors.append("->GetAlertError:"+str(e))
 		exit(e)
 	
 	
@@ -193,7 +221,7 @@ def getBuses(
 		buses = response.json()["buses"]
 	except Exception as e:
 		print("Response:", response.text)
-		vars.errors.append(e)
+		vars.errors.append("->GetBusesError:"+str(e))
 		exit(e)
 	
 	# Debugging
@@ -210,12 +238,18 @@ def getBuses(
 	try:
 		for index,bus in buses.items():
 			bus = bus[0]
+			
+			# Handle Case Where No Buses Running
+			if(list(bus.keys())[0] == '-1'):
+				continue
+			
+			# Store/Reload Bus Data
 			if(bus["busId"] not in vars.currentBuses):
 				vars.currentBuses[bus["busId"]] = vars.Bus(bus["busId"])
 			vars.currentBuses[bus["busId"]].route = bus["routeId"]
 			vars.currentBuses[bus["busId"]].routeName = bus["route"]
 	except Exception as e:
-		vars.errors.append(e)
+		vars.errors.append("->GetBusesError:"+str(e)+" --- Data:"+str(buses))
 	
 	
 	return(buses)
