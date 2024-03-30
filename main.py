@@ -61,6 +61,8 @@ def display():
 		print("========================")
 
 		print("Live Data:")
+		if(len(vars.recentMsgs) == 0):
+			print("No Data")
 		for msg in vars.recentMsgs[-3:]:
 			print(msg)
 		
