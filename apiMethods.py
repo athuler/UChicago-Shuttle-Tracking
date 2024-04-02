@@ -112,27 +112,29 @@ def getAllStops(
 	
 	# Process Response
 	try:
-		busStops = {}
+		vars.busStops = {}
 		
 		# Save All Bus Stops
 		for index, stop in stops["stops"].items():
-			busStops[int(stop["stopId"])] = vars.BusStop(
+			vars.busStops[int(stop["stopId"])] = vars.BusStop(
 				id = int(stop["stopId"]),
 				name = stop["name"],
 				lat = stop["latitude"],
 				lon = stop["longitude"]
 			)
 		
+		vars.logs.append(str(len(vars.busStops))+" stops")
+		
 		# Add Routes to Bus Stops
 		for routeId, route in stops["routes"].items():
 			for stop in route[3:]:
 				stopId = int(stop[1])
 				
-				if(stopId not in busStops):
+				if(stopId not in vars.busStops):
 					vars.logs.append("Stop #"+str(stopId)+"Does Not Exist!")
 					continue
 				
-				busStops[stopId].routes.append(routeId)
+				vars.busStops[stopId].routes.append(routeId)
 		
 	except Exception as e:
 		vars.errors.append("->BusStopError:"+str(e))

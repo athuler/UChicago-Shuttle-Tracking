@@ -1,4 +1,5 @@
 from datetime import datetime
+from geopy import distance
 
 class Bus:
 	
@@ -16,6 +17,18 @@ class Bus:
 			return None
 		
 		return round((datetime.now() - self.last_ping).total_seconds())
+	
+	def getClosestStop(self):
+		
+		for index, stop in busStops.items():
+			if(self.route not in stop.routes and self.route != None):
+				continue
+			
+			stopDistance = distance.distance((self.lat, self.lon),(stop.lat, stop.lon)).m
+			
+			if(stopDistance <= 30):
+				return(stop)
+		return(None)
 		
 
 class BusStop:

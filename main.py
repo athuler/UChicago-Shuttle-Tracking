@@ -52,11 +52,25 @@ def display():
 				ping = "Never"
 			else:
 				ping = str(bus.ageSeconds())
-				
-			print(STARTC+"#"+str(index)+"\t| ",bus.pax,"pax\t| Route #"+str(bus.route)+"-"+str(bus.routeName)+"\t|  "+\
+			
+			
+			stopDetected = bus.getClosestStop()
+			
+			if(stopDetected == None):
+				stopString = ""
+			else:
+				stopString = "At " + str(stopDetected.name)
+			
+			print(
+				STARTC+"#"+str(index)+"\t|",
+				bus.pax,"pax | Route #"+str(bus.route)+"-"+str(bus.routeName)+"\t|  "+\
 				#"("+str(bus.lat)+"/"+str(bus.lon)+")" +\
 				"Age:"+ping+"s"+\
-				vars.bcolors.ENDC)
+				"\t| "+stopString+\
+				vars.bcolors.ENDC
+			)
+			
+			
 
 		print("========================")
 
@@ -89,7 +103,7 @@ def display():
 		
 		print("========================")
 		
-		time.sleep(0.7)
+		time.sleep(1)
 
 if __name__ == "__main__":
 	shutDownEvent = threading.Event()
