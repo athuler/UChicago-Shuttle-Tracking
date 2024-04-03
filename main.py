@@ -47,6 +47,7 @@ def display():
 			else:
 				STARTC = vars.bcolors.OKGREEN
 			
+			
 			# Compute Time Since Ping
 			if(bus.last_ping == None):
 				ping = "Never"
@@ -54,12 +55,20 @@ def display():
 				ping = str(bus.ageSeconds())
 			
 			
-			stopDetected = bus.getClosestStop()
-			
-			if(stopDetected == None):
-				stopString = ""
-			else:
-				stopString = "At " + str(stopDetected.name)
+			# Get Bus Status WRT Stop
+			stopString = str(bus.status) if bus.status != None else ""
+			if(bus.status == "At Stop"):
+				# Get Current Stop
+				if bus.recentStop != None:
+					stopString += " " + str(bus.recentStop.name)
+			elif(bus.status == "Traveling"):
+				# Get Next Stop
+				nextStop = bus.nextStop()
+				if(nextStop != None):
+					nextStops = bus.nextStop()
+					stopString += " to " + str(nextStops[0].name)
+					if(len(nextStops) > 1):
+						stopString += " (+" + len(nextStops-1) + ")"
 			
 			print(
 				STARTC+"#"+str(index)+"\t|",

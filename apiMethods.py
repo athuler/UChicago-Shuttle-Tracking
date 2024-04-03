@@ -125,16 +125,26 @@ def getAllStops(
 		
 		vars.logs.append(str(len(vars.busStops))+" stops")
 		
-		# Add Routes to Bus Stops
+		
 		for routeId, route in stops["routes"].items():
+			
+			if(routeId not in vars.routes):
+				vars.routes[routeId] = vars.Route(routeId)
+			vars.routes[routeId].stops = []
+			
 			for stop in route[3:]:
 				stopId = int(stop[1])
 				
+				
+				# Add Route to Bus Stop
 				if(stopId not in vars.busStops):
 					vars.logs.append("Stop #"+str(stopId)+"Does Not Exist!")
 					continue
-				
 				vars.busStops[stopId].routes.append(routeId)
+				
+				
+				# Add Bus Stop To Route
+				vars.routes[routeId].stops.append(vars.busStops[stopId])
 		
 	except Exception as e:
 		vars.errors.append("->BusStopError:"+str(e))

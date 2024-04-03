@@ -20,13 +20,20 @@ def handleNewWsMessage(wsapp, message):
 		vars.currentBuses[message["busId"]].last_ping = datetime.now()
 		
 		# Get Closest Stop
-		closestStop = vars.currentBuses[message["busId"]].getClosestStop()
+		closestStop, stopDistance = vars.currentBuses[message["busId"]].getClosestStop()
+		
 		if(closestStop != None):
-			closestStop = closestStop.name
+			vars.currentBuses[message["busId"]].recentStop = closestStop
+			vars.currentBuses[message["busId"]].status = "At Stop"
+			displayMsgStop = "Stop: " + str(closestStop.name)
+		else:
+			vars.currentBuses[message["busId"]].status = "Traveling"
+			displayMsgStop = ""
+			
 		
 		# Log New Data
 		vars.recentMsgs.append(
-			"#"+str(message["busId"])+"\t"+str(message["paxLoad"])+" pax\tLat/Lon: "+str(message["latitude"])+"/"+str(message["longitude"])+"\tStop: "+str(closestStop)
+			"#"+str(message["busId"])+"\t"+str(message["paxLoad"])+" pax\tLat/Lon: "+str(message["latitude"])+"/"+str(message["longitude"])+"\t"+displayMsgStop
 		)
 		
 	except Exception as e:
