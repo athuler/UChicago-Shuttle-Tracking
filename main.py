@@ -37,7 +37,7 @@ def display():
 			print("No buses in service")
 		
 		# Display Buses sorted by BusID
-		for index, bus in {key: val for key, val in sorted(vars.currentBuses.items(), key = lambda ele: ele[0])}.items():
+		for index, bus in {key: val for key, val in sorted(vars.currentBuses.items(), key = lambda ele: str(ele[1].route))}.items():
 			
 			# Style line
 			if(bus.route == None):
@@ -47,12 +47,19 @@ def display():
 			else:
 				STARTC = vars.bcolors.OKGREEN
 			
+			# Route Name
+			displayRouteNameLength = 20
+			displayRouteName = str(bus.routeName)
+			displayRouteName = ('{:<'+str(displayRouteNameLength)+'}').format(displayRouteName[:displayRouteNameLength])
+			if(displayRouteName[-2:] != "  "):
+				displayRouteName = displayRouteName[:-2] + ".."
+			
 			
 			# Compute Time Since Ping
 			if(bus.last_ping == None):
-				ping = "Never"
+				ping = "-"
 			else:
-				ping = str(bus.ageSeconds())
+				ping = str(bus.ageSeconds()) + "s"
 			
 			
 			# Get Bus Status WRT Stop
@@ -60,22 +67,38 @@ def display():
 			if(bus.status == "At Stop"):
 				# Get Current Stop
 				if bus.recentStop != None:
-					stopString += " " + str(bus.recentStop.name)
+					stopString += ": " + str(bus.recentStop.name)
 			elif(bus.status == "Traveling"):
 				# Get Next Stop
 				nextStop = bus.nextStop()
-				if(nextStop != None):
-					nextStops = bus.nextStop()
-					stopString += " to " + str(nextStops[0].name)
-					if(len(nextStops) > 1):
-						stopString += " (+" + len(nextStops-1) + ")"
+				if(nextStop != None and nextStop != []):
+					stopString += " to: " + str(nextStop[0].name)
+					if(len(nextStop) > 1):
+						stopString += " (+" + len(nextStop-1) + ")"
+				else:
+					stopString = ""
+			# Trim Stop Name
+			stopStringLength = 35
+			stopString = ('{:<'+str(stopStringLength)+'}').format(stopString[:stopStringLength])
+			if(stopString[-2:] != "  "):
+				stopString = stopString[:-2] + ".."
 			
+			# Process Bus Pax Count
+			if(bus.pax != None):
+				displayPaxCount = str(bus.pax)
+			else:
+				displayPaxCount = "-"
+				
+			
+			# Display Bus Info
 			print(
-				STARTC+"#"+str(index)+"\t|",
-				bus.pax,"pax | Route #"+str(bus.route)+"-"+str(bus.routeName)+"\t|  "+\
+				STARTC+\
+				displayRouteName +\
+				" (#"+str(bus.route) + " / Bus #" + str(index)+")\t" +\
+				displayPaxCount + " pax\t" +\
 				#"("+str(bus.lat)+"/"+str(bus.lon)+")" +\
-				"Age:"+ping+"s"+\
-				"\t| "+stopString+\
+				"Age:"+ping+\
+				"\t"+stopString+\
 				vars.bcolors.ENDC
 			)
 			
