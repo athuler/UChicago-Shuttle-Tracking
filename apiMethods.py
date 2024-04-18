@@ -246,8 +246,9 @@ def getBuses(
 				"Lat/Lon: (",bus["latitude"],"/",bus["longitude"],")"
 			)
 	
-	# Process Response
+	
 	try:
+		# Process Response
 		for index,bus in buses.items():
 			bus = bus[0]
 			
@@ -260,6 +261,19 @@ def getBuses(
 				vars.currentBuses[bus["busId"]] = vars.Bus(bus["busId"])
 			vars.currentBuses[bus["busId"]].route = bus["routeId"]
 			vars.currentBuses[bus["busId"]].routeName = bus["route"]
+		
+		
+		# Remove Stale Buses
+		for busId in list(vars.currentBuses.keys()).copy():
+			if(
+				vars.currentBuses[busId].ageSeconds() == None or
+				vars.currentBuses[busId].ageSeconds() < 60
+			):
+				continue
+			
+			vars.currentBuses.pop(busId)
+		
+		
 	except Exception as e:
 		vars.errors.append("->GetBusesError:"+str(e)+" --- Data:"+str(buses))
 	

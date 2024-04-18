@@ -40,10 +40,16 @@ def display():
 		for index, bus in {key: val for key, val in sorted(vars.currentBuses.items(), key = lambda ele: str(ele[1].route))}.items():
 			
 			# Style line
-			if(bus.route == None):
+			if(
+				bus.ageSeconds() != None and
+				bus.ageSeconds() > 20
+			):
+				STARTC = vars.bcolors.FAIL
+			elif(bus.route == None):
 				STARTC = vars.bcolors.WARNING
 			elif(bus.pax == None):
 				STARTC = vars.bcolors.FAIL
+			
 			else:
 				STARTC = vars.bcolors.OKGREEN
 			
