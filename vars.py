@@ -1,5 +1,6 @@
 from datetime import datetime
 from geopy import distance
+import pyproj
 
 class Bus:
 	
@@ -10,8 +11,11 @@ class Bus:
 		self.pax = None
 		self.lat = None
 		self.lon = None
+		self.lastLat = None
+		self.lastLon = None
 		self.last_ping = None
 		self.recentStop = None
+		self.previousStop = None
 		self.status = None
 	
 	def ageSeconds(self):
@@ -20,16 +24,67 @@ class Bus:
 		
 		return round((datetime.now() - self.last_ping).total_seconds())
 	
-	def getClosestStop(self):
+	def getClosestStop(
+		self,
+		detectionDistance = 30
+	):
+		# Exclude Undefined Buses
+		if(self.route == None):
+			return(None,None)
+		
 		# TODO: Instead of iterating through every stop in system, use "routes" to only iterate through stops for the current route
+		
+		# Get closest stop for current point
 		for index, stop in busStops.items():
 			if(self.route not in stop.routes and self.route != None):
 				continue
 			
-			stopDistance = distance.distance((self.lat, self.lon),(stop.lat, stop.lon)).m
+			stopDistance = distance.distance(
+					(self.lat, self.lon),
+					(stop.lat, stop.lon)
+				).m
 			
-			if(stopDistance <= 35):
+			if(stopDistance <= detectionDistance):
 				return(stop, stopDistance)
+		
+		
+		# No Movement
+		if(
+			self.lat == self.lastLat and
+			self.lon == self.lastLon
+		):
+			return(None, None)
+		
+		
+		# Get closest stop along travel path
+		geodesic = pyproj.Geod(ellps='WGS84')
+		fwd_azimuth, back_azimuth, travelDist = geodesic.inv(
+			self.lon,
+			self.lat,
+			self.lastLon,
+			self.lastLat
+		)
+		midPoint = distance.distance(
+				meters=int(travelDist/2)
+			).destination(
+				(self.lat, self.lon),
+				bearing = back_azimuth
+			)
+		
+		for index, stop in busStops.items():
+			if(self.route not in stop.routes and self.route != None):
+				continue
+			
+			stopDistance = distance.distance(
+					(stop.lat, stop.lon),
+					(midPoint.latitude, midPoint.longitude)
+				).m
+			
+			if(stopDistance <= detectionDistance):
+				logs.append("Detected "+self.routeName+" From Midpoint At " + stop.name)
+				return(stop, stopDistance)
+		
+		# No Stop Found
 		return(None, None)
 	
 	def nextStop(self):

@@ -14,15 +14,26 @@ def handleNewWsMessage(wsapp, message):
 		if(message["busId"] not in vars.currentBuses):
 			vars.currentBuses[message["busId"]] = vars.Bus(message["busId"])
 		
+		# Update Passenger Load
 		vars.currentBuses[message["busId"]].pax = message["paxLoad"]
+		
+		# Update Location
 		vars.currentBuses[message["busId"]].lat = message["latitude"]
+		vars.currentBuses[message["busId"]].lastLat = vars.currentBuses[message["busId"]].lat
 		vars.currentBuses[message["busId"]].lon = message["longitude"]
+		vars.currentBuses[message["busId"]].lastLon = vars.currentBuses[message["busId"]].lon
+		
+		# Update Ping
 		vars.currentBuses[message["busId"]].last_ping = datetime.now()
 		
 		# Get Closest Stop
-		closestStop, stopDistance = vars.currentBuses[message["busId"]].getClosestStop()
+		try:
+			closestStop, stopDistance = vars.currentBuses[message["busId"]].getClosestStop()
+		except Exception as e:
+			vars.errors.append("->Error Getting Closest Stop:" + str(e))
 		
 		if(closestStop != None):
+			vars.currentBuses[message["busId"]].previousStop = vars.currentBuses[message["busId"]].recentStop
 			vars.currentBuses[message["busId"]].recentStop = closestStop
 			vars.currentBuses[message["busId"]].status = "At Stop"
 			displayMsgStop = "Stop: " + str(closestStop.name)
