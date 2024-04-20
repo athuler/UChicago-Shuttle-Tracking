@@ -42,7 +42,7 @@ def dataUploadThread():
 		}
 		uploadDetails["Alerts"] = {
 			"lastUpload": datetime.now(),
-			"freq": 5,
+			"freq": 60*5,
 			"func": uploadAlertsData
 		}
 		

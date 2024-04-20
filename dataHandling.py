@@ -2,6 +2,7 @@ import json
 import geopy.distance
 import vars
 from datetime import datetime
+import json
 
 
 def handleNewWsMessage(wsapp, message):
@@ -53,21 +54,53 @@ def handleNewWsMessage(wsapp, message):
 
 def uploadNumShuttlesData(cnx):
 	
+	
+	NumShuttlesRunning = 0
+	NumShuttlesOOS = 0
+	NumShuttlesNoGPS = 0
+	NumAggPassengers = 0
+	RouteBreakdown = {}
+	
+	for busNum, bus in vars.currentBuses.items():
+		
+		# Count OOS Buses
+		if(bus.routeName == None):
+			NumShuttlesOOS += 1
+		
+		# Count Shuttles W/O GPS
+		elif(bus.pax == None):
+			NumShuttlesNoGPS += 1
+		
+		# Count Running Shuttles
+		else:
+			NumShuttlesRunning += 1
+		
+		# Count Aggregate Passengers
+		if(bus.pax != None):
+			NumAggPassengers += bus.pax
+			
+		# Build Route Breakdown
+		if(bus.routeName != None):
+			if(bus.routeName not in RouteBreakdown):
+				RouteBreakdown[bus.routeName] = 0
+			RouteBreakdown[bus.routeName] += 1
+	
+	
+	# Upload Data
 	cursor = cnx.cursor()
 	insertData = (
 		"INSERT INTO NumShuttlesRunning "
-		"(NumShuttlesRunning, RouteBreakdown, NumAggPassengers, NumShuttlesOOS) "
-		"VALUES (%(NumShuttlesRunning)s, %(RouteBreakdown)s, %(NumAggPassengers)s, %(NumShuttlesOOS)s)"
+		"(NumShuttlesRunning, RouteBreakdown, NumAggPassengers, NumShuttlesOOS, NumShuttlesNoGPS) "
+		"VALUES (%(NumShuttlesRunning)s, %(RouteBreakdown)s, %(NumAggPassengers)s, %(NumShuttlesOOS)s, %(NumShuttlesNoGPS)s)"
 	)
 	data = {
-		'NumShuttlesRunning': 0,
-		'RouteBreakdown': None,
-		'NumAggPassengers': 0,
-		'NumShuttlesOOS': 0,
+		'NumShuttlesRunning': NumShuttlesRunning,
+		'RouteBreakdown': json.dumps(RouteBreakdown),
+		'NumAggPassengers': NumAggPassengers,
+		'NumShuttlesOOS': NumShuttlesOOS,
+		'NumShuttlesNoGPS': NumShuttlesNoGPS,
 	}
 	cursor.execute(insertData, data)
-
-	
 	cnx.commit()
 	cursor.close()
 	
