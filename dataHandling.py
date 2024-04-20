@@ -94,29 +94,35 @@ def uploadAlertsData(cnx):
 			
 			# Insert New Alert
 			
-			insertData = (
+			query = (
 				"INSERT INTO Alerts "
 				"(id, name, timeCreated, timeFrom, timeTo, htmlContent, routeId, authorId, authorName, timeUpdated) "
 				"VALUES (%(id)s, %(name)s, %(timeCreated)s, %(timeFrom)s, %(timeTo)s, %(htmlContent)s, %(routeId)s, %(authorId)s, %(authorName)s, %(timeUpdated)s)"
 			)
-			data = {
-				'id': alert["id"],
-				'name': alert["name"],
-				'timeCreated': alert["created"],
-				'timeFrom': alert["from"],
-				'timeTo':alert["to"],
-				'htmlContent': alert["html"],
-				'routeId': alert["routeId"],
-				'authorId': alert["authorId"],
-				'authorName': alert["author"],
-				'timeUpdated': alert["updated"],
-			}
-			cursor.execute(insertData, data)
-		
 		else:
 			
 			# Update Alert
-			...
+			query = (
+				"UPDATE Alerts "
+				"SET name = %(name)s, timeCreated = %(timeCreated)s, timeFrom = %(timeFrom)s, timeTo = %(timeTo)s, htmlContent = %(htmlContent)s, routeId = %(routeId)s, authorId = %(authorId)s, authorName = %(authorName)s, timeUpdated = %(timeUpdated)s "
+				"WHERE id = %(id)s"
+			)
+			
+		data = {
+			'id': alert["id"],
+			'name': alert["name"],
+			'timeCreated': alert["created"],
+			'timeFrom': alert["from"],
+			'timeTo':alert["to"],
+			'htmlContent': alert["html"],
+			'routeId': alert["routeId"],
+			'authorId': alert["authorId"],
+			'authorName': alert["author"],
+			'timeUpdated': alert["updated"],
+		}
+		cursor.execute(query, data)
+		
+		
 	
 	cnx.commit()
 	cursor.close()
