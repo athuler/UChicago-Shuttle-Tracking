@@ -37,8 +37,13 @@ def dataUploadThread():
 		# Define Data Streams
 		uploadDetails["NumShuttles"] = {
 			"lastUpload": datetime.now(),
-			"freq": None,
+			"freq": 60,
 			"func": uploadNumShuttlesData
+		}
+		uploadDetails["Alerts"] = {
+			"lastUpload": datetime.now(),
+			"freq": 5,
+			"func": uploadAlertsData
 		}
 		
 		
@@ -61,7 +66,7 @@ def dataUploadThread():
 		print("DB Connection Closed")
 		
 	except Exception as e:
-		vars.errors.append("->ErrorUploadingData " + str(e))
+		vars.errors.append("->ErrorUploadingData: " + str(e))
 
 def display():
 	while shutDownEvent.is_set():
@@ -171,7 +176,8 @@ def display():
 		if(len(vars.systemAlerts) == 0):
 			print("No alerts")
 		for alert in vars.systemAlerts[-5:]:
-			print("->",alert)
+			print("->",alert["gtfsAlertDescriptionText"])
+			#print("->",alert)
 		print("========================")
 		
 		print("Recent Errors:")

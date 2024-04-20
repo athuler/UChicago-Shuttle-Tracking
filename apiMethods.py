@@ -199,8 +199,8 @@ def getSystemAlerts(
 	
 	vars.systemAlerts = []
 	for msg in errorMsg["msgs"]:
-		vars.systemAlerts.append(msg["gtfsAlertDescriptionText"])
-		#vars.systemAlerts.append(msg)
+		#vars.systemAlerts.append(msg["gtfsAlertDescriptionText"])
+		vars.systemAlerts.append(msg)
 	
 	return(errorMsg)
 

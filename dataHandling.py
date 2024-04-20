@@ -52,6 +52,7 @@ def handleNewWsMessage(wsapp, message):
 	
 
 def uploadNumShuttlesData(cnx):
+	
 	cursor = cnx.cursor()
 	insertData = (
 		"INSERT INTO NumShuttlesRunning "
@@ -74,20 +75,48 @@ def uploadNumShuttlesData(cnx):
 
 
 def uploadAlertsData(cnx):
-	cursor = cnx.cursor()
-	insertData = (
-		"INSERT INTO NumShuttlesRunning "
-		"(NumShuttlesRunning, RouteBreakdown, NumAggPassengers, NumShuttlesOOS) "
-		"VALUES (%(NumShuttlesRunning)s, %(RouteBreakdown)s, %(NumAggPassengers)s, %(NumShuttlesOOS)s)"
-	)
-	data = {
-		'NumShuttlesRunning': 0,
-		'RouteBreakdown': None,
-		'NumAggPassengers': 0,
-		'NumShuttlesOOS': 0,
-	}
-	cursor.execute(insertData, data)
-
+	cursor = cnx.cursor(buffered=True)
+	
+	# Iterate Through Each Alert
+	for alert in vars.systemAlerts:
+		
+		# Check If Alert Already Exists
+		alertCheckQuery = (
+			"SELECT * FROM Alerts "
+			"WHERE id = %(id)s"
+		)
+		alertCheckData = {
+			'id': alert["id"]
+		}
+		cursor.execute(alertCheckQuery, alertCheckData)
+		
+		if(cursor.rowcount == 0):
+			
+			# Insert New Alert
+			
+			insertData = (
+				"INSERT INTO Alerts "
+				"(id, name, timeCreated, timeFrom, timeTo, htmlContent, routeId, authorId, authorName, timeUpdated) "
+				"VALUES (%(id)s, %(name)s, %(timeCreated)s, %(timeFrom)s, %(timeTo)s, %(htmlContent)s, %(routeId)s, %(authorId)s, %(authorName)s, %(timeUpdated)s)"
+			)
+			data = {
+				'id': alert["id"],
+				'name': alert["name"],
+				'timeCreated': alert["created"],
+				'timeFrom': alert["from"],
+				'timeTo':alert["to"],
+				'htmlContent': alert["html"],
+				'routeId': alert["routeId"],
+				'authorId': alert["authorId"],
+				'authorName': alert["author"],
+				'timeUpdated': alert["updated"],
+			}
+			cursor.execute(insertData, data)
+		
+		else:
+			
+			# Update Alert
+			...
 	
 	cnx.commit()
 	cursor.close()
