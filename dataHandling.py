@@ -50,5 +50,47 @@ def handleNewWsMessage(wsapp, message):
 	except Exception as e:
 		vars.errors.append("->MessageHandlingError:"+str(e))
 	
+
+def uploadNumShuttlesData(cnx):
+	cursor = cnx.cursor()
+	insertData = (
+		"INSERT INTO NumShuttlesRunning "
+		"(NumShuttlesRunning, RouteBreakdown, NumAggPassengers, NumShuttlesOOS) "
+		"VALUES (%(NumShuttlesRunning)s, %(RouteBreakdown)s, %(NumAggPassengers)s, %(NumShuttlesOOS)s)"
+	)
+	data = {
+		'NumShuttlesRunning': 0,
+		'RouteBreakdown': None,
+		'NumAggPassengers': 0,
+		'NumShuttlesOOS': 0,
+	}
+	cursor.execute(insertData, data)
+
 	
+	cnx.commit()
+	cursor.close()
+	
+	return True
+
+
+def uploadAlertsData(cnx):
+	cursor = cnx.cursor()
+	insertData = (
+		"INSERT INTO NumShuttlesRunning "
+		"(NumShuttlesRunning, RouteBreakdown, NumAggPassengers, NumShuttlesOOS) "
+		"VALUES (%(NumShuttlesRunning)s, %(RouteBreakdown)s, %(NumAggPassengers)s, %(NumShuttlesOOS)s)"
+	)
+	data = {
+		'NumShuttlesRunning': 0,
+		'RouteBreakdown': None,
+		'NumAggPassengers': 0,
+		'NumShuttlesOOS': 0,
+	}
+	cursor.execute(insertData, data)
+
+	
+	cnx.commit()
+	cursor.close()
+	
+	return True
 	

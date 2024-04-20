@@ -2,8 +2,10 @@
 import os
 import threading
 import time
+from datetime import datetime
 from apiMethods import *
 from dataHandling import *
+from dbMethods import *
 import vars
 
 # Declare Global Variables
@@ -21,6 +23,45 @@ def refreshData():
 		vars.logs.append("Reloaded!")
 		
 		time.sleep(10)
+
+
+def dataUploadThread():
+	try:
+		
+		# DB Connect
+		cnx = dbConnect()
+		
+		# Declare Dictionaries
+		uploadDetails = {}
+		
+		# Define Data Streams
+		uploadDetails["NumShuttles"] = {
+			"lastUpload": datetime.now(),
+			"freq": None,
+			"func": uploadNumShuttlesData
+		}
+		
+		
+		# Iterate Through Data Streams
+		while shutDownEvent.is_set():
+			for key, uploadData in uploadDetails.items():
+				
+				if(
+					uploadData["freq"] == None 
+					or
+					(datetime.now() - uploadData["lastUpload"]).seconds < uploadData["freq"]
+				):
+					continue
+				
+				uploadData["lastUpload"] = datetime.now()
+				uploadData["func"](cnx)
+				vars.logs.append("Data Uploaded - " + str(key))
+			time.sleep(2)
+		cnx.close()
+		print("DB Connection Closed")
+		
+	except Exception as e:
+		vars.errors.append("->ErrorUploadingData " + str(e))
 
 def display():
 	while shutDownEvent.is_set():
@@ -151,10 +192,12 @@ if __name__ == "__main__":
 	t2_launchWs = threading.Thread(target = launchWS, name="Launch WS")
 	t2_launchWs.daemon = True
 	t3_display = threading.Thread(target = display, name="Display")
+	t4_dataUpload = threading.Thread(target = dataUploadThread, name="Display")
 	
 	t1_dataRefresh.start()
 	t2_launchWs.start()
 	t3_display.start()
+	t4_dataUpload.start()
 	
 	
 	try:
@@ -165,5 +208,6 @@ if __name__ == "__main__":
 		shutDownEvent.clear()
 		t1_dataRefresh.join()
 		t3_display.join()
+		t4_dataUpload.join()
 		print("Shut down!")
 
