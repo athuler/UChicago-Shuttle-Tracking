@@ -61,7 +61,7 @@ def dataUploadThread():
 				uploadData["lastUpload"] = datetime.now()
 				uploadData["func"](cnx)
 				vars.logs.append("Data Uploaded - " + str(key))
-			time.sleep(2)
+			time.sleep(1)
 		cnx.close()
 		print("DB Connection Closed")
 		
