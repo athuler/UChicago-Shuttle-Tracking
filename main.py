@@ -44,7 +44,7 @@ def dataUploadThread():
 		}
 		uploadDetails["Alerts"] = {
 			"lastUpload": datetime.now(),
-			"freq": 60*5,
+			"freq": 60,
 			"func": uploadAlertsData
 		}
 		
@@ -63,7 +63,7 @@ def dataUploadThread():
 				uploadData["lastUpload"] = datetime.now()
 				uploadData["func"](cnx)
 				vars.logs.append("Data Uploaded - " + str(key))
-			time.sleep(1)
+			time.sleep(0.25)
 		cnx.close()
 		print("DB Connection Closed")
 		
