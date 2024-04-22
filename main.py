@@ -193,6 +193,7 @@ def display():
 		time.sleep(1)
 
 if __name__ == "__main__":
+	print("Starting up...")
 	shutDownEvent = threading.Event()
 	shutDownEvent.set()
 	
@@ -202,6 +203,7 @@ if __name__ == "__main__":
 	t3_display = threading.Thread(target = display, name="Display")
 	t4_dataUpload = threading.Thread(target = dataUploadThread, name="Display")
 	
+	print("Starting Threads...")
 	t1_dataRefresh.start()
 	t2_launchWs.start()
 	t3_display.start()
