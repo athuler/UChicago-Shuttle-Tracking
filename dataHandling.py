@@ -129,15 +129,15 @@ def uploadAlertsData(cnx):
 			
 			query = (
 				"INSERT INTO Alerts "
-				"(id, name, timeCreated, timeFrom, timeTo, htmlContent, routeId, authorId, authorName, timeUpdated) "
-				"VALUES (%(id)s, %(name)s, %(timeCreated)s, %(timeFrom)s, %(timeTo)s, %(htmlContent)s, %(routeId)s, %(authorId)s, %(authorName)s, %(timeUpdated)s)"
+				"(id, name, timeCreated, timeFrom, timeTo, htmlContent, routeId, authorId, authorName, timeUpdated, timeLastObserved) "
+				"VALUES (%(id)s, %(name)s, %(timeCreated)s, %(timeFrom)s, %(timeTo)s, %(htmlContent)s, %(routeId)s, %(authorId)s, %(authorName)s, %(timeUpdated)s, %(timeLastObserved)s)"
 			)
 		else:
 			
 			# Update Alert
 			query = (
 				"UPDATE Alerts "
-				"SET name = %(name)s, timeCreated = %(timeCreated)s, timeFrom = %(timeFrom)s, timeTo = %(timeTo)s, htmlContent = %(htmlContent)s, routeId = %(routeId)s, authorId = %(authorId)s, authorName = %(authorName)s, timeUpdated = %(timeUpdated)s "
+				"SET name = %(name)s, timeCreated = %(timeCreated)s, timeFrom = %(timeFrom)s, timeTo = %(timeTo)s, htmlContent = %(htmlContent)s, routeId = %(routeId)s, authorId = %(authorId)s, authorName = %(authorName)s, timeUpdated = %(timeUpdated)s, timeLastObserved = %(timeLastObserved)s "
 				"WHERE id = %(id)s"
 			)
 			
@@ -152,6 +152,7 @@ def uploadAlertsData(cnx):
 			'authorId': alert["authorId"],
 			'authorName': alert["author"],
 			'timeUpdated': alert["updated"],
+			'timeLastObserved': datetime.now(),
 		}
 		cursor.execute(query, data)
 		

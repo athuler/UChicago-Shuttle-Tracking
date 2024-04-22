@@ -15,13 +15,15 @@ def refreshData():
 	global logs
 	
 	while shutDownEvent.is_set():
-		vars.logs.append("Reloading Data...")
-		getAllRoutes()
-		getAllStops()
-		getSystemAlerts()
-		getBuses()
-		vars.logs.append("Reloaded!")
-		
+		try:
+			vars.logs.append("Reloading Data...")
+			getAllRoutes()
+			getAllStops()
+			getSystemAlerts()
+			getBuses()
+			vars.logs.append("Reloaded!")
+		except Exception as e:
+			vars.errors.append("->ErrorRefreshingData: "+str(e))
 		time.sleep(10)
 
 
