@@ -38,6 +38,10 @@ def handleNewWsMessage(wsapp, message):
 			vars.errors.append("->Error Getting Closest Stop: " + str(e))
 		
 		
+		if(vars.currentBuses[message["busId"]].paxBeforeArrival == None):
+			# Record passenger count before next stop
+			vars.currentBuses[message["busId"]].paxBeforeArrival = vars.currentBuses[message["busId"]].pax
+		
 		
 		if(closestStop == None):
 			# Bus Is Not At A Stop
@@ -47,14 +51,15 @@ def handleNewWsMessage(wsapp, message):
 				# Bus Was At A Stop
 				# But Not Anymore
 				vars.currentBuses[message["busId"]].recordStopEvent()
+				# Record passenger count before next stop
+				vars.currentBuses[message["busId"]].paxBeforeArrival = vars.currentBuses[message["busId"]].pax
 				
 			# Set Bus Status
 			vars.currentBuses[message["busId"]].status = "Traveling"
 			vars.currentBuses[message["busId"]].atStop = False
 			displayMsgStop = ""
 			
-			# Record passenger count before next stop
-			vars.currentBuses[message["busId"]].paxBeforeArrival = vars.currentBuses[message["busId"]].pax
+			
 			
 			
 			
@@ -71,9 +76,7 @@ def handleNewWsMessage(wsapp, message):
 		else:
 			# Bus Is At A New Stop
 			
-			if(vars.currentBuses[message["busId"]].paxBeforeArrival == None):
-				# Record passenger count before next stop
-				vars.currentBuses[message["busId"]].paxBeforeArrival = vars.currentBuses[message["busId"]].pax
+			
 			
 			if(vars.currentBuses[message["busId"]].atStop == True):
 				# Bus Was At A Stop
