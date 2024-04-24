@@ -9,6 +9,7 @@ class Bus:
 		self.route = None
 		self.routeName = None
 		self.pax = None
+		self.paxBeforeArrival = None
 		self.lat = None
 		self.lon = None
 		self.lastLat = None
@@ -17,6 +18,9 @@ class Bus:
 		self.recentStop = None
 		self.previousStop = None
 		self.status = None
+		self.timeArrivedAtStop = None
+		self.atStop = None
+		
 	
 	def ageSeconds(self):
 		if(self.last_ping == None):
@@ -28,8 +32,15 @@ class Bus:
 		self,
 		detectionDistance = 30
 	):
-		# Exclude Undefined Buses
-		if(self.route == None):
+		
+		if(
+			# Exclude Undefined Buses
+			self.route == None or
+			
+			# Exclude Buses W/O GPS
+			self.lat == None or
+			self.lon == None
+		):
 			return(None,None)
 		
 		# TODO: Instead of iterating through every stop in system, use "routes" to only iterate through stops for the current route
@@ -48,10 +59,14 @@ class Bus:
 				return(stop, stopDistance)
 		
 		
-		# No Movement
 		if(
-			self.lat == self.lastLat and
-			self.lon == self.lastLon
+			# Exclude Buses with No Movement
+			(self.lat == self.lastLat and
+			self.lon == self.lastLon) or
+			
+			# Exclude No Previous Coordinates
+			self.lastLat == None or
+			self.lastLon == None
 		):
 			return(None, None)
 		
@@ -81,7 +96,7 @@ class Bus:
 				).m
 			
 			if(stopDistance <= detectionDistance):
-				logs.append("Detected "+self.routeName+" From Midpoint At " + stop.name)
+				#logs.append("Detected "+self.routeName+" From Midpoint At " + stop.name)
 				return(stop, stopDistance)
 		
 		# No Stop Found
@@ -112,8 +127,25 @@ class Bus:
 			
 		return(nextStops)
 			
+	def recordStopEvent(self):
+		logs.append("recordStopEvent Triggered for " + self.routeName + " at " + self.recentStop.name)
 		
+		paxLoad = self.pax - self.paxBeforeArrival
+		if(paxLoad < 0):
+			paxLoad = self.pax
 		
+		stopEvents.append(StopEvent(
+			stop = self.recentStop,
+			route = self.route,
+			routeName = self.routeName,
+			busId = self.id,
+			arrivalTime = self.timeArrivedAtStop,
+			departureTime = datetime.now(),
+			passengerLoad = paxLoad,
+			nextStop = self.nextStop()
+		))
+		
+		return
 
 class BusStop:
 	
@@ -123,6 +155,7 @@ class BusStop:
 		self.lat = lat
 		self.lon = lon
 		self.routes = []
+
 
 class Route:
 	def __init__(self, id, name = None, stops = []):
@@ -135,7 +168,31 @@ class Route:
 		for stop in self.stops:
 			stopIds.append(stop.id)
 		return(stopIds)
+
+
+class StopEvent:
+	def __init__(
+		self,
+		stop,
+		route,
+		routeName,
+		busId,
+		arrivalTime,
+		departureTime,
+		passengerLoad,
+		nextStop
+	):
+		self.uploaded = False
+		self.stop = stop
+		self.route = route
+		self.routeName = routeName
+		self.busId = busId
+		self.arrivalTime = arrivalTime
+		self.departureTime = departureTime
+		self.passengerLoad = passengerLoad
+		self.nextStop = nextStop
 		
+
 def init():
 	
 	global currentBuses
@@ -158,6 +215,9 @@ def init():
 	
 	global systemAlerts
 	systemAlerts = []
+	
+	global stopEvents
+	stopEvents = []
 
 
 class bcolors:

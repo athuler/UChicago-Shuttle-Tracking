@@ -18,11 +18,14 @@ def handleNewWsMessage(wsapp, message):
 		# Update Passenger Load
 		vars.currentBuses[message["busId"]].pax = message["paxLoad"]
 		
-		# Update Location
-		vars.currentBuses[message["busId"]].lat = message["latitude"]
+		# Move Old Coordinates
 		vars.currentBuses[message["busId"]].lastLat = vars.currentBuses[message["busId"]].lat
-		vars.currentBuses[message["busId"]].lon = message["longitude"]
 		vars.currentBuses[message["busId"]].lastLon = vars.currentBuses[message["busId"]].lon
+		
+		# Add New Coordinates
+		vars.currentBuses[message["busId"]].lat = message["latitude"]
+		vars.currentBuses[message["busId"]].lon = message["longitude"]
+		
 		
 		# Update Ping
 		vars.currentBuses[message["busId"]].last_ping = datetime.now()
@@ -31,16 +34,71 @@ def handleNewWsMessage(wsapp, message):
 		try:
 			closestStop, stopDistance = vars.currentBuses[message["busId"]].getClosestStop()
 		except Exception as e:
-			vars.errors.append("->Error Getting Closest Stop:" + str(e))
+			closestStop, stopDistance = None, None
+			vars.errors.append("->Error Getting Closest Stop: " + str(e))
 		
-		if(closestStop != None):
-			vars.currentBuses[message["busId"]].previousStop = vars.currentBuses[message["busId"]].recentStop
-			vars.currentBuses[message["busId"]].recentStop = closestStop
-			vars.currentBuses[message["busId"]].status = "At Stop"
-			displayMsgStop = "Stop: " + str(closestStop.name)
-		else:
+		
+		
+		if(closestStop == None):
+			# Bus Is Not At A Stop
+			
+			
+			if(vars.currentBuses[message["busId"]].atStop == True):
+				# Bus Was At A Stop
+				# But Not Anymore
+				vars.currentBuses[message["busId"]].recordStopEvent()
+				
+			# Set Bus Status
 			vars.currentBuses[message["busId"]].status = "Traveling"
+			vars.currentBuses[message["busId"]].atStop = False
 			displayMsgStop = ""
+			
+			# Record passenger count before next stop
+			vars.currentBuses[message["busId"]].paxBeforeArrival = vars.currentBuses[message["busId"]].pax
+			
+			
+			
+		elif(
+			vars.currentBuses[message["busId"]].recentStop != None and
+			closestStop.id == vars.currentBuses[message["busId"]].recentStop.id
+		):
+			# Bus Is At The Same Stop
+			
+			vars.currentBuses[message["busId"]].atStop = True
+			displayMsgStop = "Stop: " + str(closestStop.name) + " (same)"
+		
+		
+		else:
+			# Bus Is At A New Stop
+			
+			if(vars.currentBuses[message["busId"]].paxBeforeArrival == None):
+				# Record passenger count before next stop
+				vars.currentBuses[message["busId"]].paxBeforeArrival = vars.currentBuses[message["busId"]].pax
+			
+			if(vars.currentBuses[message["busId"]].atStop == True):
+				# Bus Was At A Stop
+				# And Now At A Different One
+				
+				# Trigger Stop Event
+				vars.currentBuses[message["busId"]].recordStopEvent()
+				
+				# Record passenger count before next stop
+				vars.currentBuses[message["busId"]].paxBeforeArrival = vars.currentBuses[message["busId"]].pax
+			
+			# Move Old Stop
+			vars.currentBuses[message["busId"]].previousStop = vars.currentBuses[message["busId"]].recentStop
+			
+			# Save Current Stop
+			vars.currentBuses[message["busId"]].recentStop = closestStop
+			
+			# Set Bus Display Status
+			vars.currentBuses[message["busId"]].status = "At Stop"
+			vars.currentBuses[message["busId"]].atStop = True
+			displayMsgStop = "Stop: " + str(closestStop.name) + " (new)"
+			
+			# Stop Event Timing
+			vars.currentBuses[message["busId"]].timeArrivedAtStop = datetime.now()
+			
 			
 		
 		# Log New Data
@@ -162,4 +220,36 @@ def uploadAlertsData(cnx):
 	cursor.close()
 	
 	return True
+	
+def uploadStopEvents(cnx):
+	
+	cursor = cnx.cursor()
+	
+	for stopEvent in vars.stopEvents:
+		if(stopEvent.uploaded == True):
+			continue
+		
+		stopEvent.uploaded = True
+		
+		# Upload Data
+		insertData = (
+			"INSERT INTO StopEvents "
+			"(stopId, stopName, arrivalTime, departureTime, stopDurationSeconds, routeId, routeName, busId, passengerLoad, nextStopId) "
+			"VALUES (%(stopId)s, %(stopName)s, %(arrivalTime)s, %(departureTime)s, %(stopDurationSeconds)s, %(routeId)s, %(routeName)s, %(busId)s, %(passengerLoad)s, %(nextStopId)s)"
+		)
+		data = {
+			'stopId': stopEvent.stop.id,
+			'stopName': stopEvent.stop.name,
+			'arrivalTime': stopEvent.arrivalTime,
+			'departureTime': stopEvent.departureTime,
+			'stopDurationSeconds': (stopEvent.departureTime-stopEvent.arrivalTime).seconds,
+			'routeId': stopEvent.route,
+			'routeName': stopEvent.routeName,
+			'busId': stopEvent.busId,
+			'passengerLoad': stopEvent.passengerLoad,
+			'nextStopId': stopEvent.nextStop[0].id,
+		}
+		cursor.execute(insertData, data)
+		cnx.commit()
+	cursor.close()
 	

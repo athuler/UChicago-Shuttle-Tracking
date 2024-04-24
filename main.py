@@ -16,12 +16,11 @@ def refreshData():
 	
 	while shutDownEvent.is_set():
 		try:
-			vars.logs.append("Reloading Data...")
 			getAllRoutes()
 			getAllStops()
 			getSystemAlerts()
 			getBuses()
-			vars.logs.append("Reloaded!")
+			vars.logs.append("Data Reloaded!")
 		except Exception as e:
 			vars.errors.append("->ErrorRefreshingData: "+str(e))
 		time.sleep(10)
@@ -46,6 +45,11 @@ def dataUploadThread():
 			"lastUpload": datetime.now(),
 			"freq": 60,
 			"func": uploadAlertsData
+		}
+		uploadDetails["StopEvents"] = {
+			"lastUpload": datetime.now(),
+			"freq": 5,
+			"func": uploadStopEvents
 		}
 		
 		
@@ -187,6 +191,16 @@ def display():
 			print("No errors")
 		for error in vars.errors[-5:]:
 			print(error)
+		
+		print("========================")
+		
+		print("Recent Stop Events:")
+		if(len(vars.stopEvents) == 0):
+			print("No stop events")
+		for stopEvent in vars.stopEvents[-3:]:
+			print(
+				stopEvent.routeName + "\t" + stopEvent.stop.name + "\t" + str((stopEvent.departureTime-stopEvent.arrivalTime).seconds) + "s\t" + str(stopEvent.passengerLoad)
+			)
 		
 		print("========================")
 		

@@ -123,7 +123,7 @@ def getAllStops(
 				lon = stop["longitude"]
 			)
 		
-		vars.logs.append(str(len(vars.busStops))+" stops")
+		#vars.logs.append(str(len(vars.busStops))+" stops")
 		
 		
 		for routeId, route in stops["routes"].items():
