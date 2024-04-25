@@ -14,16 +14,25 @@ vars.init()
 def refreshData():
 	global logs
 	
+	lastRefreshDataDate = None
+	
 	while shutDownEvent.is_set():
 		try:
+			while(
+				lastRefreshDataDate != None and
+				(datetime.now() - lastRefreshDataDate).seconds < 15
+			):
+				time.sleep(1)
+			
 			getAllRoutes()
 			getAllStops()
 			getSystemAlerts()
 			getBuses()
+			lastRefreshDataDate = datetime.now()
 			vars.logs.append("Data Reloaded!")
 		except Exception as e:
 			vars.errors.append("->ErrorRefreshingData: "+str(e))
-		time.sleep(10)
+		
 
 
 def dataUploadThread():
