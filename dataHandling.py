@@ -2,7 +2,6 @@ import json
 import geopy.distance
 import vars
 from datetime import datetime
-import json
 
 
 def handleNewWsMessage(wsapp, message):
