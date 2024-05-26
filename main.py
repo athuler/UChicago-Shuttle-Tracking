@@ -36,34 +36,35 @@ def refreshData():
 
 
 def dataUploadThread():
-	try:
+	
 		
-		# DB Connect
-		cnx = dbConnect()
-		
-		# Declare Dictionaries
-		uploadDetails = {}
-		
-		# Define Data Streams
-		uploadDetails["NumShuttles"] = {
-			"lastUpload": datetime.now(),
-			"freq": 60,
-			"func": uploadNumShuttlesData
-		}
-		uploadDetails["Alerts"] = {
-			"lastUpload": datetime.now(),
-			"freq": 60,
-			"func": uploadAlertsData
-		}
-		uploadDetails["StopEvents"] = {
-			"lastUpload": datetime.now(),
-			"freq": 5,
-			"func": uploadStopEvents
-		}
-		
-		
-		# Iterate Through Data Streams
-		while shutDownEvent.is_set():
+	# DB Connect
+	cnx = dbConnect()
+	
+	# Declare Dictionaries
+	uploadDetails = {}
+	
+	# Define Data Streams
+	uploadDetails["NumShuttles"] = {
+		"lastUpload": datetime.now(),
+		"freq": 60,
+		"func": uploadNumShuttlesData
+	}
+	uploadDetails["Alerts"] = {
+		"lastUpload": datetime.now(),
+		"freq": 60,
+		"func": uploadAlertsData
+	}
+	uploadDetails["StopEvents"] = {
+		"lastUpload": datetime.now(),
+		"freq": 5,
+		"func": uploadStopEvents
+	}
+	
+	
+	# Iterate Through Data Streams
+	while shutDownEvent.is_set():
+		try:
 			for key, uploadData in uploadDetails.items():
 				
 				if(
@@ -77,11 +78,15 @@ def dataUploadThread():
 				uploadData["func"](cnx)
 				vars.logs.append("Data Uploaded - " + str(key))
 			time.sleep(0.25)
-		cnx.close()
-		print("DB Connection Closed")
 		
-	except Exception as e:
-		vars.errors.append("->ErrorUploadingData: " + str(e))
+		
+		except Exception as e:
+			vars.errors.append("->ErrorUploadingData: " + str(e))
+			if(cnx.is_connected() == False):
+				cnx = dbConnect()
+	
+	cnx.close()
+	print("DB Connection Closed")
 
 def display():
 	while shutDownEvent.is_set():
