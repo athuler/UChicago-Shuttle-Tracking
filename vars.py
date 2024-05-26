@@ -1,6 +1,7 @@
 from datetime import datetime
 from geopy import distance
 import pyproj
+import yaml
 
 class Bus:
 	
@@ -191,9 +192,13 @@ class StopEvent:
 		self.departureTime = departureTime
 		self.passengerLoad = passengerLoad
 		self.nextStop = nextStop
-		
+
 
 def init():
+
+	# Load Config
+	global config
+	config = yaml.safe_load(open("config.yml"))
 	
 	global currentBuses
 	currentBuses = {}

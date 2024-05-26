@@ -3,3 +3,4 @@ geopy==2.4.1
 websocket-client==1.7.0
 requests==2.32.0
 pyproj==3.6.1
+PyYAML==6.0
