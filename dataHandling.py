@@ -222,6 +222,7 @@ def uploadAlertsData(cnx):
 	cursor.close()
 	
 	return True
+
 	
 def uploadStopEvents(cnx):
 	
