@@ -21,17 +21,27 @@ def refreshData():
 			while(
 				lastRefreshDataDate != None and
 				(datetime.now() - lastRefreshDataDate).seconds < 15
+				and shutDownEvent.is_set()
 			):
-				time.sleep(1)
+				time.sleep(0.2)
 			
-			getAllRoutes()
-			getAllStops()
-			getSystemAlerts()
-			getBuses()
+			dataSources = [
+				getAllRoutes,
+				getAllStops,
+				getSystemAlerts,
+				getBuses,
+			]
+			for getData in dataSources:
+				if(not shutDownEvent.is_set()):
+					break
+				getData()
+			
 			lastRefreshDataDate = datetime.now()
 			vars.logs.append("Data Reloaded!")
 		except Exception as e:
 			vars.errors.append("->ErrorRefreshingData: "+str(e))
+	
+	print("Data Refresh Closed")
 
 
 def dataUploadThread():
@@ -83,10 +93,12 @@ def dataUploadThread():
 			vars.errors.append("->ErrorUploadingData: " + str(e))
 			if(cnx.is_connected() == False):
 				cnx = dbConnect()
+	try:
+		cnx.close()
+		print("DB Connection Closed")
+	except Exception as e:
+		print("ERROR Closing Connection")
 	
-	cnx.close()
-	print("DB Connection Closed")
-
 
 def displayThread():
 	while shutDownEvent.is_set():
@@ -226,13 +238,46 @@ def refreshDisplay():
 	print("========================")
 	
 
-def main():
+def updater(quitOnUpdateAvailable = True):
+	installed_version = None
+	while shutDownEvent.is_set():
+		
+		# Update Package With pip
+		if installed_version is not None:
+			subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "git+https://github.com/athuler/UChicago-Shuttle-Tracking@main"], stdout = subprocess.DEVNULL,stderr = subprocess.DEVNULL)
+		
+		
+		# Get Running Vs Installed Versions
+		reqs = subprocess.run([sys.executable, '-m', 'pip', 'show', 'Python-Packaging-Test'], capture_output=True).stdout
+		for pkg in reqs.split(b"\r\n"):
+			if("Version" not in str(pkg)):
+				continue
+			installed_version = str(pkg).split(": ")[1].replace("'","")
+			break
+		print(f"Running version: {__version__}")
+		print(f"Installed Version: {installed_version}")
+		
+		# Determine Whether Update is Necessary
+		if(__version__ != installed_version and installed_version != None):
+			print("UPDATE AVAILABLE")
+			
+			if quitOnUpdateAvailable:
+				shutDownEvent.clear()
+		else:
+			# No update necessary
+			time.sleep(5)
+	print("Updater Closed")
+
+
+def main(quitOnUpdateAvailable = False):
+	exitCode = 0
 	print("Starting up...")
 	
 	# Set Up Variables
 	vars.init()
 	
 	# Set Up Shutdown Trigger
+	global shutDownEvent
 	shutDownEvent = threading.Event()
 	shutDownEvent.set()
 	
@@ -242,6 +287,8 @@ def main():
 	t2_launchWs.daemon = True
 	t3_display = threading.Thread(target = displayThread, name="Display")
 	t4_dataUpload = threading.Thread(target = dataUploadThread, name="Display")
+	t5_updater = threading.Thread(target = updater, name="Updater", args = (quitOnUpdateAvailable,))
+	
 	
 	# Launch Threads
 	print("Starting Threads...")
@@ -249,18 +296,27 @@ def main():
 	t2_launchWs.start()
 	t3_display.start()
 	t4_dataUpload.start()
+	t5_updater.start()
 	
-	
-	try:
-		while 1:
+		
+	while shutDownEvent.is_set():
+		try:
 			time.sleep(.1)
-	except KeyboardInterrupt:
-		print("Shutting Down...")
-		shutDownEvent.clear()
-		t1_dataRefresh.join()
-		t3_display.join()
-		t4_dataUpload.join()
-		print("Shut down!")
+		except KeyboardInterrupt:
+			print("Interrupted")
+			exitCode = 1
+			shutDownEvent.clear()
+			break
+	
+	# Shut Down Sequence
+	print("Shutting Down...")
+	t1_dataRefresh.join()
+	t3_display.join()
+	t4_dataUpload.join()
+	t5_updater.join()
+	print("Shut down!")
+	return(exitCode)
+
 
 if __name__ == "__main__":
 	main()
