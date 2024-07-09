@@ -1,8 +1,8 @@
 import json
 import geopy.distance
-import vars
 from datetime import datetime
 
+import uchicagoShuttleTracking.vars as vars
 
 def handleNewWsMessage(wsapp, message):
 	try:

@@ -1,8 +1,8 @@
 import requests
 import websocket
 import json
-from dataHandling import *
-import vars
+from uchicagoShuttleTracking.dataHandling import *
+import uchicagoShuttleTracking.vars as vars
 
 BASE_URL = "https://passiogo.com"
 

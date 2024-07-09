@@ -3,10 +3,11 @@ import os
 import threading
 import time
 from datetime import datetime
-from apiMethods import *
-from dataHandling import *
-from dbMethods import *
-import vars
+
+from uchicagoShuttleTracking.apiMethods import *
+from uchicagoShuttleTracking.dataHandling import *
+from uchicagoShuttleTracking.dbMethods import *
+import uchicagoShuttleTracking.vars as vars
 
 
 
@@ -225,8 +226,7 @@ def refreshDisplay():
 	print("========================")
 	
 
-
-if __name__ == "__main__":
+def main():
 	print("Starting up...")
 	
 	# Set Up Variables
@@ -261,4 +261,7 @@ if __name__ == "__main__":
 		t3_display.join()
 		t4_dataUpload.join()
 		print("Shut down!")
+
+if __name__ == "__main__":
+	main()
 
