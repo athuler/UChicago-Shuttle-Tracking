@@ -7,6 +7,32 @@ import vars
 BASE_URL = "https://passiogo.com"
 
 
+def sendApiRequest(url, body):
+	
+	# Send Request
+	try:
+		response = requests.post(url, json = body)
+	except Exception as e:
+		vars.errors.append(f"->apiError: {e}")
+		return(None)
+	
+	
+	# Handle JSON Response
+	try:
+		response = response.json()
+	except Exception as e:
+		vars.errors.append(f"->apiError: {e}")
+		return(None)
+	
+	
+	# Handle API Error
+	if("error" in response and response["error"] != ""):
+		vars.errors.append(f"->apiError: {response['error']}")
+		return(None)
+	
+	return(response)
+
+
 def getAllRoutes(
 	systemSelected = 1068,
 	paramDigit = 1,
@@ -31,22 +57,15 @@ def getAllRoutes(
 			"systemSelected0" : str(systemSelected),
 			"amount" : amount
 			}
-	response = requests.post(url, json = body)
+	routes = sendApiRequest(url, body)
 	
-	
-	# Validate JSON Response
-	try:
-		routes = response.json()
-	except Exception as e:
-		print("Response:", response.text)
-		vars.errors.append(e)
-		exit(e)
-	
+	# Handle Request Error
+	if(routes == None):
+		return(None)
 	
 	# Handle Differing Response Format
 	if "all" in routes:
 		routes = routes["all"]
-	
 	
 	# Process Response
 	if(debug):
@@ -82,19 +101,15 @@ def getAllStops(
 	# Initialize & Send Request
 	url = BASE_URL+"/mapGetData.php?getStops="+str(paramDigit)
 	body = {
-			"s0" : str(systemSelected),
-			"sA" : sA
-			}
-	response = requests.post(url, json = body)
+		"s0" : str(systemSelected),
+		"sA" : sA
+	}
+	stops = sendApiRequest(url, body)
 	
+	# Handle Request Error
+	if(stops == None):
+		return(None)
 	
-	# Validate JSON Response
-	try:
-		stops = response.json()
-	except Exception as e:
-		print("Response:", response.text)
-		vars.errors.append(e)
-		exit(e)
 	
 	# Debug
 	if(debug):
@@ -172,19 +187,16 @@ def getSystemAlerts(
 	# Initialize & Send Request
 	url = BASE_URL+"/goServices.php?getAlertMessages="+str(paramDigit)
 	body = {
-			"systemSelected0" : str(systemSelected),
-			"amount" : 1,
-			"routesAmount":0
-			}
-	response = requests.post(url, json = body)
+		"systemSelected0" : str(systemSelected),
+		"amount" : 1,
+		"routesAmount":0
+	}
+	errorMsg = sendApiRequest(url, body)
 	
 	
-	# Validate JSON Response
-	try:
-		errorMsg = response.json()
-	except Exception as e:
-		vars.errors.append("->GetAlertError:"+str(e))
-		exit(e)
+	# Handle Request Error
+	if(errorMsg == None):
+		return(None)
 	
 	
 	# Process Response
@@ -223,19 +235,15 @@ def getBuses(
 	# Initialize & Send Request
 	url = BASE_URL+"/mapGetData.php?getBuses="+str(paramDigit)
 	body = {
-			"s0" : str(s0),
-			"sA" : 1
-			}
-	response = requests.post(url, json = body)
+		"s0" : str(s0),
+		"sA" : 1
+	}
+	buses = sendApiRequest(url, body)
 	
+	# Handle Request Error
+	if(buses == None):
+		return(None)
 	
-	# Validate JSON Response
-	try:
-		buses = response.json()["buses"]
-	except Exception as e:
-		print("Response:", response.text)
-		vars.errors.append("->GetBusesError:"+str(e))
-		exit(e)
 	
 	# Debugging
 	if(debug):
@@ -276,7 +284,7 @@ def getBuses(
 		
 		
 	except Exception as e:
-		vars.errors.append("->GetBusesError:"+str(e)+" --- Data:"+str(buses))
+		vars.errors.append(f"->GetBusesError:{e} --- Data:{buses}")
 	
 	
 	return(buses)
