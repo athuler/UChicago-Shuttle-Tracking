@@ -248,7 +248,6 @@ def getBuses(
 	# Debugging
 	if(debug):
 		for index,bus in buses.items():
-			bus = bus[0]
 			#print(bus,"\n")
 			print("#", bus["busId"], bus["route"],"(",bus["routeId"],") - CalcCourse:",
 				round(float(bus["calculatedCourse"]), 2),
@@ -258,7 +257,7 @@ def getBuses(
 	
 	try:
 		# Process Response
-		for index,bus in buses.items():
+		for index,bus in buses["buses"].items():
 			bus = bus[0]
 			
 			# Handle Case Where No Buses Running
