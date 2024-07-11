@@ -91,7 +91,11 @@ def dataUploadThread():
 		
 		except Exception as e:
 			vars.errors.append("->ErrorUploadingData: " + str(e))
-			if(cnx.is_connected() == False):
+			if(
+				cnx is None or
+				cnx.is_connected() == False
+			):
+				vars.logs.append("Reconnecting to DataBase...")
 				cnx = dbConnect()
 	try:
 		cnx.close()
