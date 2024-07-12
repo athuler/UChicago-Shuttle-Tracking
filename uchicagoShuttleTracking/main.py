@@ -273,6 +273,12 @@ def updater(quitOnUpdateAvailable = True):
 	print("Updater Closed")
 
 
+def wsManager():
+	while shutDownEvent.is_set():
+		vars.logs.append("Connecting to WebSocket")
+		launchWS()
+		vars.logs.append("WebSocket Closed. Reconnecting...")
+
 def main(quitOnUpdateAvailable = False):
 	exitCode = 0
 	print("Starting up...")
@@ -287,7 +293,7 @@ def main(quitOnUpdateAvailable = False):
 	
 	# Prepare Threads
 	t1_dataRefresh = threading.Thread(target = refreshData, name="Data Refresh")
-	t2_launchWs = threading.Thread(target = launchWS, name="Launch WS")
+	t2_launchWs = threading.Thread(target = wsManager, name="Launch WS")
 	t2_launchWs.daemon = True
 	t3_display = threading.Thread(target = displayThread, name="Display")
 	t4_dataUpload = threading.Thread(target = dataUploadThread, name="Display")
@@ -315,6 +321,7 @@ def main(quitOnUpdateAvailable = False):
 	# Shut Down Sequence
 	print("Shutting Down...")
 	t1_dataRefresh.join()
+	#t2_launchWs.join()
 	t3_display.join()
 	t4_dataUpload.join()
 	t5_updater.join()

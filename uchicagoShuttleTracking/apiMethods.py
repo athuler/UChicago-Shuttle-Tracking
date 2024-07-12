@@ -293,17 +293,28 @@ def getBuses(
 # Launch WebSocket
 def launchWS():
 	uri = "wss://passio3.com/"
-	#websocket.enableTrace(True) # For Debugging
-	wsapp = websocket.WebSocketApp(
-							uri,
-							on_open = subscribeWS,
-							on_message = handleNewWsMessage
-			)
-	vars.logs.append("Connected!")
-	wsapp.run_forever()
-	vars.logs.append("Connection Closed. Reconnecting...")
-	launchWS()
 	
+	
+	websocket.enableTrace(False) # For Debugging
+	wsapp = websocket.WebSocketApp(
+		uri,
+		on_open = subscribeWS,
+		on_message = handleNewWsMessage,
+		on_error = handleWsError,
+		on_close = handleWsClose
+	)
+	wsapp.run_forever(
+		ping_interval = 5,
+		ping_timeout = 3,
+	)
+	
+	
+def handleWsError(wsapp, error):
+	vars.errors.append(f"->WebSocketError: {error}")
+	
+def handleWsClose(wsapp, close_status_code, close_msg):
+	wsapp.close()
+	vars.logs.append("Closing WebSocket")
 	
 	
 def subscribeWS(wsapp):
