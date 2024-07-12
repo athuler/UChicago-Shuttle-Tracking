@@ -1,5 +1,5 @@
-import vars
-from secrets import *
+import uchicagoShuttleTracking.vars as vars
+from uchicagoShuttleTracking.secrets import *
 import mysql.connector
 
 def dbConnect():
