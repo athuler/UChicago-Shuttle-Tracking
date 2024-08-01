@@ -13,6 +13,7 @@ import uchicagoShuttleTracking.vars as vars
 
 
 
+
 def refreshData():
 	global logs
 	
@@ -283,6 +284,7 @@ def wsManager():
 		vars.logs.append("Connecting to WebSocket")
 		launchWS()
 		vars.logs.append("WebSocket Closed. Reconnecting...")
+
 
 def main(quitOnUpdateAvailable = False):
 	exitCode = 0
