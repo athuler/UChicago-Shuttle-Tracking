@@ -199,7 +199,7 @@ def init():
 
 	# Load Config
 	if not os.path.exists("config.yml"):
-		open(filename, 'w').close()
+		open("config.yml", 'w').close()
 	global config
 	config = yaml.safe_load(open("config.yml"))
 	
