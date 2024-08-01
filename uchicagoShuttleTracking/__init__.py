@@ -4,8 +4,9 @@ import subprocess
 import sys
 import time
 
-__all__ = ["main"]
+
 __version__ = "0.1.0"
+PIP_URL = "git+https://github.com/athuler/UChicago-Shuttle-Tracking@main"
 
 
 def run(quitOnUpdateAvailable = False):
