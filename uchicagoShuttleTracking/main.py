@@ -118,7 +118,13 @@ def refreshDisplay():
 	print("========================")
 	print("UCHICAGO SHUTTLE TRACKER")
 	print("========================")
-	print(f"Uploading data: {vars.config['upload_data']}")
+	
+	if "upload_data" in vars.config:
+		uploadingData = vars.config['upload_data']
+	else:
+		uploadingData = "Unknown"
+	
+	print(f"Uploading data: {uploadingData}")
 	print("========================")
 	
 	
