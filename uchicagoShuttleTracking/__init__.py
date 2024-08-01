@@ -1,5 +1,5 @@
-#from uchicagoShuttleTracking.main import main
-import main
+from uchicagoShuttleTracking.main import main
+#import main
 import threading
 import subprocess
 import sys
