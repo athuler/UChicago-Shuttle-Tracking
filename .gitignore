@@ -4,3 +4,5 @@ secrets.py
 /venv
 /uchicagoShuttleTracking/__pycache__
 uchi-key.pem
+/.ipynb_checkpoints
+Untitled.ipynb
