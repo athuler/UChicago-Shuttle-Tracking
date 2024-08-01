@@ -1,5 +1,6 @@
 # Load Libraries
 import os
+import sys
 import time
 import threading
 import subprocess
@@ -112,7 +113,7 @@ def displayThread():
 
 
 def refreshDisplay():
-	os.system('cls')
+	os.system('cls||clear')
 	print("========================")
 	print("UCHICAGO SHUTTLE TRACKER")
 	print("========================")
