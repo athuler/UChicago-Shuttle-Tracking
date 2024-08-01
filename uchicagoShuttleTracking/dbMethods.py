@@ -1,5 +1,4 @@
 import uchicagoShuttleTracking.vars as vars
-from uchicagoShuttleTracking.secrets import *
 import mysql.connector
 
 def dbConnect():
