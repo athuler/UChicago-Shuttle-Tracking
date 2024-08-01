@@ -203,6 +203,9 @@ def init():
 	global config
 	config = yaml.safe_load(open("config.yml"))
 	
+	if config is None:
+		config = {}
+	
 	global currentBuses
 	currentBuses = {}
 	
