@@ -248,7 +248,10 @@ def updater(quitOnUpdateAvailable = True):
 		
 		# Update Package With pip
 		if installed_version is not None:
-			subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "git+https://github.com/athuler/UChicago-Shuttle-Tracking@main"], stdout = subprocess.DEVNULL,stderr = subprocess.DEVNULL)
+			subprocess.run(
+			[sys.executable, "-m", "pip", "install", "--upgrade", PIP_URL],
+			stdout = subprocess.DEVNULL,
+			stderr = subprocess.DEVNULL)
 		
 		
 		# Get Running Vs Installed Versions
