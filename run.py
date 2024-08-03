@@ -3,6 +3,10 @@ import uchicagoShuttleTracking
 from secrets import *
 import sys
 
+global DB_HOST
+global DB_NAME
+global DB_USER
+global DB_PASS
 
 while True:
 	
