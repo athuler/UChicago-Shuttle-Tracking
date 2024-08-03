@@ -207,6 +207,7 @@ def init(
 		open("config.yml", 'w').close()
 	global config
 	config = yaml.safe_load(open("config.yml"))
+	config["upload_data"] = True
 	
 	# Set Secrets
 	global DB_HOST
