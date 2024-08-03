@@ -12,8 +12,6 @@ from uchicagoShuttleTracking.dbMethods import *
 import uchicagoShuttleTracking.vars as vars
 
 
-
-
 def refreshData():
 	global logs
 	
@@ -270,12 +268,15 @@ def updater(quitOnUpdateAvailable = True):
 				continue
 			installed_version = str(pkg).split(": ")[1].replace("'","")
 			break
-		print(f"Running version: {__version__}")
-		print(f"Installed Version: {installed_version}")
+		#print(f"Running version: {__version__}")
+		vars.logs.append(f"Running version: {__version__}")
+		#print(f"Installed Version: {installed_version}")
+		vars.logs.append(f"Installed Version: {installed_version}")
 		
 		# Determine Whether Update is Necessary
 		if(__version__ != installed_version and installed_version != None):
-			print("UPDATE AVAILABLE")
+			#print("UPDATE AVAILABLE")
+			vars.logs.append("UPDATE AVAILABLE")
 			
 			if quitOnUpdateAvailable:
 				shutDownEvent.clear()
@@ -292,12 +293,28 @@ def wsManager():
 		vars.logs.append("WebSocket Closed. Reconnecting...")
 
 
-def main(quitOnUpdateAvailable = False):
+def main(
+	quitOnUpdateAvailable = False,
+	version = None,
+	DB_HOST = "",
+	DB_NAME = "",
+	DB_USER = "",
+	DB_PASS = "",
+):
+	global __version__
+	__version__ = version
+	
+	
 	exitCode = 0
 	print("Starting up...")
 	
 	# Set Up Variables
-	vars.init()
+	vars.init(
+		DB_HOST,
+		DB_NAME,
+		DB_USER,
+		DB_PASS,
+	)
 	
 	# Set Up Shutdown Trigger
 	global shutDownEvent

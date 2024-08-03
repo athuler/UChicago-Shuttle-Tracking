@@ -4,10 +4,10 @@ import mysql.connector
 def dbConnect():
 	try:
 		cnx = mysql.connector.connect(
-			user = DB_USER,
-			password = DB_PASS,
-			host = DB_HOST,
-			database = DB_NAME
+			user = vars.DB_USER,
+			password = vars.DB_PASS,
+			host = vars.DB_HOST,
+			database = vars.DB_NAME
 		)
 		vars.logs.append("Connected to DB")
 		

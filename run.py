@@ -3,16 +3,16 @@ import uchicagoShuttleTracking
 from secrets import *
 import sys
 
-global DB_HOST
-global DB_NAME
-global DB_USER
-global DB_PASS
 
 while True:
 	
 	# Run Application
 	exitCode = uchicagoShuttleTracking.run(
-		quitOnUpdateAvailable = True # Quits When Update Available & Installed
+		True, # Quits When Update Available & Installed
+		DB_HOST,
+		DB_NAME,
+		DB_USER,
+		DB_PASS,
 	)
 	
 	print(f"Received exit code {exitCode}")

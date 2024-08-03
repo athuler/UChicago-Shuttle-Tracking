@@ -195,13 +195,28 @@ class StopEvent:
 		self.nextStop = nextStop
 
 
-def init():
+def init(
+	DB_HOST_,
+	DB_NAME_,
+	DB_USER_,
+	DB_PASS_,
+):
 
 	# Load Config
 	if not os.path.exists("config.yml"):
 		open("config.yml", 'w').close()
 	global config
 	config = yaml.safe_load(open("config.yml"))
+	
+	# Set Secrets
+	global DB_HOST
+	DB_HOST = DB_HOST_
+	global DB_NAME
+	DB_NAME = DB_NAME_
+	global DB_USER
+	DB_USER = DB_USER_
+	global DB_PASS
+	DB_PASS = DB_PASS_
 	
 	if config is None:
 		config = {}
