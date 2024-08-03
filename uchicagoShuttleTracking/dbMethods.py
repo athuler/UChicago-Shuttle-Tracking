@@ -14,5 +14,6 @@ def dbConnect():
 		return(cnx)
 		
 	except Exception as e:
-		vars.errors.append("->ErrorConnectingToDb: " + str(e))
+		vars.errors.append(f"->ErrorConnectingToDb: {e})
+		vars.errors.append(f"User: {vars.DB_USER}, Host: {vars.DB_HOST}")
 		return None
