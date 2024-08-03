@@ -207,6 +207,8 @@ def init(
 		open("config.yml", 'w').close()
 	global config
 	config = yaml.safe_load(open("config.yml"))
+	if config is None:
+		config = {}
 	config["upload_data"] = True
 	
 	# Set Secrets
