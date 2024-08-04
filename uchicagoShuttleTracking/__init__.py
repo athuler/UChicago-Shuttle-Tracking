@@ -11,18 +11,18 @@ PIP_URL = "git+https://github.com/athuler/UChicago-Shuttle-Tracking@main"
 
 def run(
 	quitOnUpdateAvailable = False,
-	DB_HOST = "",
-	DB_NAME = "",
-	DB_USER = "",
-	DB_PASS = "",
+	DB_HOST = None,
+	DB_NAME = None,
+	DB_USER = None,
+	DB_PASS = None,
 ):
 	
 	return main(
-		quitOnUpdateAvailable,
-		__version__,
-		DB_HOST,
-		DB_NAME,
-		DB_USER,
-		DB_PASS,
+			quitOnUpdateAvailable,
+			__version__,
+			DB_HOST,
+			DB_NAME,
+			DB_USER,
+			DB_PASS,
 		)
 	

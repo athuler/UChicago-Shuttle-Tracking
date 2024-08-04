@@ -296,10 +296,10 @@ def wsManager():
 def main(
 	quitOnUpdateAvailable = False,
 	version = None,
-	DB_HOST = "",
-	DB_NAME = "",
-	DB_USER = "",
-	DB_PASS = "",
+	DB_HOST = None,
+	DB_NAME = None,
+	DB_USER = None,
+	DB_PASS = None,
 ):
 	global __version__
 	__version__ = version
