@@ -6,9 +6,6 @@ import sys
 
 while True:
 	
-	print(f"Start User: {DB_USER}, Host: {DB_HOST}")
-	quit()
-	
 	# Run Application
 	exitCode = uchicagoShuttleTracking.run(
 		quitOnUpdateAvailable = True, # Quits When Update Available & Installed
