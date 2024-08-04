@@ -16,6 +16,7 @@ def run(
 	DB_USER = None,
 	DB_PASS = None,
 ):
+	print(f"Run User: {DB_USER}, Host: {DB_HOST}")
 	
 	return main(
 			quitOnUpdateAvailable,
