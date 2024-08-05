@@ -130,7 +130,7 @@ class Bus:
 		return(nextStops)
 			
 	def recordStopEvent(self):
-		logs.append("recordStopEvent Triggered for " + self.routeName + " at " + self.recentStop.name)
+		logs.append(vars.Log(f"recordStopEvent Triggered for {self.routeName} at {self.recentStop.name}"))
 		
 		paxLoad = self.pax - self.paxBeforeArrival
 		if(paxLoad < 0):
@@ -194,6 +194,10 @@ class StopEvent:
 		self.passengerLoad = passengerLoad
 		self.nextStop = nextStop
 
+class Log:
+	def __init__(self, message):
+		self.message = message
+		self.uiShown = False
 
 def init(
 	DB_HOST_,

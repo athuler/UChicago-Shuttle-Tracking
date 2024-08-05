@@ -1,6 +1,6 @@
 from importlib import reload
 import uchicagoShuttleTracking
-from secrets import *
+from secret import *
 import sys
 
 

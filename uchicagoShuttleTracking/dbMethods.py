@@ -9,7 +9,7 @@ def dbConnect():
 			host = vars.DB_HOST,
 			database = vars.DB_NAME
 		)
-		vars.logs.append("Connected to DB")
+		vars.logs.append(vars.Log("Connected to DB"))
 		
 		return(cnx)
 		

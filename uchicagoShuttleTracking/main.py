@@ -4,6 +4,8 @@ import sys
 import time
 import threading
 import subprocess
+from random import randint
+from nicegui import app,ui
 from datetime import datetime
 
 from uchicagoShuttleTracking.apiMethods import *
@@ -38,7 +40,7 @@ def refreshData():
 				getData()
 			
 			lastRefreshDataDate = datetime.now()
-			vars.logs.append("Data Reloaded!")
+			vars.logs.append(vars.Log("Data Reloaded!"))
 		except Exception as e:
 			vars.errors.append("->ErrorRefreshingData: "+str(e))
 	
@@ -86,7 +88,7 @@ def dataUploadThread():
 				
 				uploadData["lastUpload"] = datetime.now()
 				uploadData["func"](cnx)
-				vars.logs.append("Data Uploaded - " + str(key))
+				vars.logs.append(vars.Log(f"Data Uploaded - {key}"))
 			time.sleep(0.25)
 		
 		
@@ -96,7 +98,7 @@ def dataUploadThread():
 				cnx is None or
 				cnx.is_connected() == False
 			):
-				vars.logs.append("Reconnecting to DataBase...")
+				vars.logs.append(vars.Log("Reconnecting to DataBase..."))
 				cnx = dbConnect()
 	try:
 		cnx.close()
@@ -107,7 +109,15 @@ def dataUploadThread():
 
 def displayThread():
 	while shutDownEvent.is_set():
+		# Refresh Console
 		refreshDisplay()
+		
+		# Refresh GUI
+		ui_shuttles.refresh()
+		ui_date.refresh()
+		ui_logs()
+		
+		# Delay
 		time.sleep(1)
 
 
@@ -218,7 +228,7 @@ def refreshDisplay():
 	
 	print("Recent Logs:")
 	for log in vars.logs[-3:]:
-		print(log)
+		print(log.message)
 	
 	print("========================")
 	
@@ -247,7 +257,67 @@ def refreshDisplay():
 		)
 	
 	print("========================")
+
+# START Refreshable GUI Elements
+
+@ui.refreshable
+def ui_shuttles() -> None:
+	columns = [
+		{'name': 'name', 'label': 'Name', 'field': 'name', 'align': 'left', 'sortable': True},
+		{'name': 'route', 'label': 'Route', 'field': 'route', 'sortable': True},
+		{'name': 'busNumber', 'label': 'Bus #', 'field': 'busNumber', 'sortable': True},
+		{'name': 'passengers', 'label': 'Passengers', 'field': 'passengers', 'sortable': True},
+		{'name': 'age', 'label': 'Age', 'field': 'age', 'sortable': True},
+	]
+	rows = []
 	
+	
+	# Iterate Through Each Bus
+	for index, bus in {key: val for key, val in sorted(vars.currentBuses.items(), key = lambda ele: str(ele[1].route))}.items():
+		
+		rows.append({
+			'name': bus.routeName,
+			'route': bus.route,
+			'busNumber': index,
+			'passengers': bus.pax,
+			'age': bus.ageSeconds() if bus.ageSeconds() is not None else 999,
+		})
+	table = ui.table(
+		title = "Live Shuttles",
+		columns=columns,
+		rows=rows,
+		row_key='name'
+	)#.classes('w-1/2')
+	table.add_slot('body-cell-age', '''
+		<q-td key="age" :props="props">
+			<q-badge :color="props.value > 15 ? 'red' : 'green'">
+				{{ props.value }}
+			</q-badge>
+		</q-td>
+	''')
+
+@ui.refreshable
+def ui_date() -> None:
+	ui.html(f"<i>Last Updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>")
+
+def ui_logs() -> None:
+	global uiLogs
+	
+	logIndexList = list(range(
+		-1,
+		max(len(vars.logs)*(-1),-30),
+		-1
+	))
+	for n in logIndexList:
+		
+		if vars.logs[n].uiShown:
+			continue
+		uiLogs.push(f">{vars.logs[n].message}")
+		
+		vars.logs[n].uiShown = True
+
+# END Refreshable GUI Elements
+
 
 def updater(quitOnUpdateAvailable = True):
 	installed_version = None
@@ -268,15 +338,13 @@ def updater(quitOnUpdateAvailable = True):
 				continue
 			installed_version = str(pkg).split(": ")[1].replace("'","")
 			break
-		#print(f"Running version: {__version__}")
-		vars.logs.append(f"Running version: {__version__}")
-		#print(f"Installed Version: {installed_version}")
-		vars.logs.append(f"Installed Version: {installed_version}")
+		vars.logs.append(vars.Log(f"Running version: {__version__}"))
+		vars.logs.append(vars.Log(f"Installed Version: {installed_version}"))
 		
 		# Determine Whether Update is Necessary
 		if(__version__ != installed_version and installed_version != None):
 			#print("UPDATE AVAILABLE")
-			vars.logs.append("UPDATE AVAILABLE")
+			vars.logs.append(vars.Log("UPDATE AVAILABLE"))
 			
 			if quitOnUpdateAvailable:
 				shutDownEvent.clear()
@@ -288,9 +356,9 @@ def updater(quitOnUpdateAvailable = True):
 
 def wsManager():
 	while shutDownEvent.is_set():
-		vars.logs.append("Connecting to WebSocket")
+		vars.logs.append(vars.Log("Connecting to WebSocket"))
 		launchWS()
-		vars.logs.append("WebSocket Closed. Reconnecting...")
+		vars.logs.append(vars.Log("WebSocket Closed. Reconnecting..."))
 
 
 def main(
@@ -315,6 +383,52 @@ def main(
 		DB_USER,
 		DB_PASS,
 	)
+	
+	# Set Up GUI
+	ui.page_title('UChicago Shuttle Tracking')
+	ui.dark_mode().enable()
+	with ui.column():
+		ui.label('UChicago Shuttles').classes('text-h3')
+		ui_date()
+		with ui.row().classes("w-full"):
+			ui_shuttles()
+			with ui.column().classes('w-1/4'):
+				
+				# Alerts
+				ui.label('System Alerts')
+				global uiAlerts
+				uiAlerts = ui.log(max_lines=30).classes("flex-grow h-40").style('white-space: normal') 
+				uiAlerts.push("Start of System Alerts")
+				uiAlerts.push("This is a very long line ----------- -------- -------- ------------ ----------")
+				
+				# Live Data
+				ui.label('Live Data')
+				global uiLiveData
+				uiLiveData = ui.log(max_lines=30).classes("flex-grow h-30").style('white-space: normal') 
+				uiLiveData.push("Start of Live Data")
+				uiLiveData.push("This is a very long line ----------- -------- -------- ------------ ----------")
+				
+				# Stop Events
+				ui.label('Recent Stop Events')
+				global uiStopEvents
+				uiStopEvents = ui.log(max_lines=30).classes("flex-grow h-30").style('white-space: normal') 
+				uiStopEvents.push("Start of Stop Events")
+				uiStopEvents.push("This is a very long line ----------- -------- -------- ------------ ----------")
+			
+			with ui.column().classes('w-1/4'):
+				
+				# Logs
+				ui.label('Logs Here')
+				global uiLogs
+				uiLogs = ui.log(max_lines=30).classes("flex-grow h-40").style('white-space: normal') 
+				uiLogs.push("-- Start of logs --")
+				
+				# Errors
+				ui.label('Errors Here')
+				global uiErrors
+				uiErrors = ui.log(max_lines=30).classes("flex-grow h-40").style('white-space: normal') 
+				uiErrors.push("Start of errors")
+				uiErrors.push("This is a very long line ----------- -------- -------- ------------ ----------")
 	
 	# Set Up Shutdown Trigger
 	global shutDownEvent
@@ -341,7 +455,10 @@ def main(
 		
 	while shutDownEvent.is_set():
 		try:
-			time.sleep(.1)
+			ui.run(
+				show = False,
+				reload = False
+			)
 		except KeyboardInterrupt:
 			print("Interrupted")
 			exitCode = 1
@@ -350,6 +467,7 @@ def main(
 	
 	# Shut Down Sequence
 	print("Shutting Down...")
+	app.shutdown()
 	t1_dataRefresh.join()
 	#t2_launchWs.join()
 	t3_display.join()

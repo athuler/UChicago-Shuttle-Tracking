@@ -138,7 +138,7 @@ def getAllStops(
 				lon = stop["longitude"]
 			)
 		
-		#vars.logs.append(str(len(vars.busStops))+" stops")
+		
 		
 		
 		for routeId, route in stops["routes"].items():
@@ -153,7 +153,7 @@ def getAllStops(
 				
 				# Add Route to Bus Stop
 				if(stopId not in vars.busStops):
-					vars.logs.append("Stop #"+str(stopId)+"Does Not Exist!")
+					vars.logs.append(vars.Log(f"Stop #{stopId} Does Not Exist!"))
 					continue
 				vars.busStops[stopId].routes.append(routeId)
 				
@@ -314,7 +314,7 @@ def handleWsError(wsapp, error):
 	
 def handleWsClose(wsapp, close_status_code, close_msg):
 	wsapp.close()
-	vars.logs.append("Closing WebSocket")
+	vars.logs.append(vars.Log("Closing WebSocket"))
 	
 	
 def subscribeWS(wsapp):
@@ -327,7 +327,7 @@ def subscribeWS(wsapp):
 	}
 	wsapp.send(json.dumps(subscriptionMsg))
 	
-	vars.logs.append("Subscribed!")
+	vars.logs.append(vars.Log("Subscribed!"))
 
 
 	
