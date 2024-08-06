@@ -361,7 +361,7 @@ def updater(quitOnUpdateAvailable = True):
 			
 			# Determine Whether Update is Necessary
 			if(__version__ != installed_version and installed_version != None):
-				#print("UPDATE AVAILABLE")
+				print(f"UPDATE AVAILABLE: {__version__} -> {installed_version}")
 				vars.logs.append(vars.Log("UPDATE AVAILABLE"))
 				
 				if quitOnUpdateAvailable:
