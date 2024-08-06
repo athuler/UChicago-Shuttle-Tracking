@@ -5,7 +5,7 @@ import sys
 import time
 
 global __version__
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 PIP_URL = "git+https://github.com/athuler/UChicago-Shuttle-Tracking@main"
 
 
