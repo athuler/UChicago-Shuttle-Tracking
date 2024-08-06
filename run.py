@@ -20,7 +20,10 @@ while True:
 	
 	if(exitCode == 0):
 		# Load Update
-		reload(uchicagoShuttleTracking)
+		#reload(uchicagoShuttleTracking)
+		del uchicagoShuttleTracking
+		import uchicagoShuttleTracking
+
 		print("Application updated & reloaded!")
 	else:
 		# Exit Application
