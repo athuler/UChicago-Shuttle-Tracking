@@ -121,6 +121,7 @@ def displayThread():
 		
 		# Delay
 		time.sleep(1)
+	print("Display Closed")
 
 
 def refreshDisplay():
@@ -366,6 +367,7 @@ def updater(quitOnUpdateAvailable = True):
 				
 				if quitOnUpdateAvailable:
 					shutDownEvent.clear()
+					app.shutdown()
 			else:
 				# No update necessary
 				time.sleep(5)
