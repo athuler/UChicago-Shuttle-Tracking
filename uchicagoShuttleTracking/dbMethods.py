@@ -7,7 +7,8 @@ def dbConnect():
 			user = vars.DB_USER,
 			password = vars.DB_PASS,
 			host = vars.DB_HOST,
-			database = vars.DB_NAME
+			database = vars.DB_NAME, 
+			connection_timeout = 5
 		)
 		vars.logs.append(vars.Log("Connected to DB"))
 		
