@@ -340,35 +340,37 @@ def refreshLogs(uiElement, listOfObjects, maxNumOfElements = 30):
 def updater(quitOnUpdateAvailable = True):
 	installed_version = None
 	while shutDownEvent.is_set():
-		
-		# Update Package With pip
-		if installed_version is not None:
-			subprocess.run(
-			[sys.executable, "-m", "pip", "install", "--upgrade", PIP_URL],
-			stdout = subprocess.DEVNULL,
-			stderr = subprocess.DEVNULL)
-		
-		
-		# Get Running Vs Installed Versions
-		reqs = subprocess.run([sys.executable, '-m', 'pip', 'show', 'UChicago-Shuttle-Tracking'], capture_output=True).stdout
-		for pkg in reqs.split(b"\r\n"):
-			if("Version" not in str(pkg)):
-				continue
-			installed_version = str(pkg).split(": ")[1].replace("'","")
-			break
-		vars.logs.append(vars.Log(f"Running version: {__version__}"))
-		vars.logs.append(vars.Log(f"Installed Version: {installed_version}"))
-		
-		# Determine Whether Update is Necessary
-		if(__version__ != installed_version and installed_version != None):
-			#print("UPDATE AVAILABLE")
-			vars.logs.append(vars.Log("UPDATE AVAILABLE"))
+		try:
+			# Update Package With pip
+			if installed_version is not None:
+				subprocess.run(
+				[sys.executable, "-m", "pip", "install", "--upgrade", PIP_URL],
+				stdout = subprocess.DEVNULL,
+				stderr = subprocess.DEVNULL)
 			
-			if quitOnUpdateAvailable:
-				shutDownEvent.clear()
-		else:
-			# No update necessary
-			time.sleep(5)
+			
+			# Get Running Vs Installed Versions
+			reqs = subprocess.run([sys.executable, '-m', 'pip', 'show', 'UChicago-Shuttle-Tracking'], capture_output=True).stdout
+			for pkg in reqs.split(b"\r\n"):
+				if("Version" not in str(pkg)):
+					continue
+				installed_version = str(pkg).split(": ")[1].replace("'","")
+				break
+			vars.logs.append(vars.Log(f"Running version: {__version__}"))
+			vars.logs.append(vars.Log(f"Installed Version: {installed_version}"))
+			
+			# Determine Whether Update is Necessary
+			if(__version__ != installed_version and installed_version != None):
+				#print("UPDATE AVAILABLE")
+				vars.logs.append(vars.Log("UPDATE AVAILABLE"))
+				
+				if quitOnUpdateAvailable:
+					shutDownEvent.clear()
+			else:
+				# No update necessary
+				time.sleep(5)
+		except Exception as e:
+			vars.errors.append(vars.Error(f"Error in the Updater! {e}"))
 	print("Updater Closed")
 
 
