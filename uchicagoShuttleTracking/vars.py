@@ -193,8 +193,21 @@ class StopEvent:
 		self.departureTime = departureTime
 		self.passengerLoad = passengerLoad
 		self.nextStop = nextStop
+		
+		self.uiShown = False
+		self.message = f"{self.routeName}\t{self.stop.name}\t{(self.departureTime-self.arrivalTime).seconds}s\t{self.passengerLoad}"
 
 class Log:
+	def __init__(self, message):
+		self.message = message
+		self.uiShown = False
+
+class Error:
+	def __init__(self, message):
+		self.message = message
+		self.uiShown = False
+
+class LiveData:
 	def __init__(self, message):
 		self.message = message
 		self.uiShown = False

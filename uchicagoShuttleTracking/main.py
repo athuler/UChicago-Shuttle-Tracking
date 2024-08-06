@@ -42,7 +42,7 @@ def refreshData():
 			lastRefreshDataDate = datetime.now()
 			vars.logs.append(vars.Log("Data Reloaded!"))
 		except Exception as e:
-			vars.errors.append("->ErrorRefreshingData: "+str(e))
+			vars.errors.append(vars.Error("->ErrorRefreshingData: "+str(e)))
 	
 	print("Data Refresh Closed")
 
@@ -93,7 +93,7 @@ def dataUploadThread():
 		
 		
 		except Exception as e:
-			vars.errors.append("->ErrorUploadingData: " + str(e))
+			vars.errors.append(vars.Error("->ErrorUploadingData: " + str(e)))
 			if(
 				cnx is None or
 				cnx.is_connected() == False
@@ -116,6 +116,8 @@ def displayThread():
 		ui_shuttles.refresh()
 		ui_date.refresh()
 		ui_logs()
+		ui_errors()
+		ui_liveData()
 		
 		# Delay
 		time.sleep(1)
@@ -222,7 +224,7 @@ def refreshDisplay():
 	if(len(vars.recentMsgs) == 0):
 		print("No Data")
 	for msg in vars.recentMsgs[-3:]:
-		print(msg)
+		print(msg.message)
 	
 	print("========================")
 	
@@ -244,7 +246,7 @@ def refreshDisplay():
 	if(len(vars.errors) == 0):
 		print("No errors")
 	for error in vars.errors[-5:]:
-		print(error)
+		print(error.message)
 	
 	print("========================")
 	
@@ -252,9 +254,10 @@ def refreshDisplay():
 	if(len(vars.stopEvents) == 0):
 		print("No stop events")
 	for stopEvent in vars.stopEvents[-3:]:
-		print(
-			stopEvent.routeName + "\t" + stopEvent.stop.name + "\t" + str((stopEvent.departureTime-stopEvent.arrivalTime).seconds) + "s\t" + str(stopEvent.passengerLoad)
-		)
+		# print(
+			# stopEvent.routeName + "\t" + stopEvent.stop.name + "\t" + str((stopEvent.departureTime-stopEvent.arrivalTime).seconds) + "s\t" + str(stopEvent.passengerLoad)
+		# )
+		print(stopEvent.message)
 	
 	print("========================")
 
@@ -302,19 +305,34 @@ def ui_date() -> None:
 
 def ui_logs() -> None:
 	global uiLogs
+	refreshLogs(uiLogs, vars.logs)
+
+def ui_errors() -> None:
+	global uiErrors
+	refreshLogs(uiErrors, vars.errors)
+
+def ui_liveData() -> None:
+	global uiLiveData
+	refreshLogs(uiLiveData, vars.recentMsgs)
 	
+def ui_stopEvents() -> None:
+	global uiStopEvents
+	refreshLogs(uiStopEvents, vars.stopEvents)
+	
+def refreshLogs(uiElement, listOfObjects, maxNumOfElements = 30):
 	logIndexList = list(range(
 		-1,
-		max(len(vars.logs)*(-1),-30),
+		max(len(listOfObjects)*(-1),maxNumOfElements*(-1)),
 		-1
 	))
 	for n in logIndexList:
 		
-		if vars.logs[n].uiShown:
+		if listOfObjects[n].uiShown:
 			continue
-		uiLogs.push(f">{vars.logs[n].message}")
+		uiElement.push(f">{listOfObjects[n].message}")
 		
-		vars.logs[n].uiShown = True
+		listOfObjects[n].uiShown = True
+	
 
 # END Refreshable GUI Elements
 
@@ -405,15 +423,14 @@ def main(
 				ui.label('Live Data')
 				global uiLiveData
 				uiLiveData = ui.log(max_lines=30).classes("flex-grow h-30").style('white-space: normal') 
-				uiLiveData.push("Start of Live Data")
-				uiLiveData.push("This is a very long line ----------- -------- -------- ------------ ----------")
+				uiLiveData.push("-- Start of Live Data --")
 				
 				# Stop Events
 				ui.label('Recent Stop Events')
 				global uiStopEvents
 				uiStopEvents = ui.log(max_lines=30).classes("flex-grow h-30").style('white-space: normal') 
-				uiStopEvents.push("Start of Stop Events")
-				uiStopEvents.push("This is a very long line ----------- -------- -------- ------------ ----------")
+				uiStopEvents.push("-- Start of Stop Events --")
+				
 			
 			with ui.column().classes('w-1/4'):
 				
@@ -427,8 +444,7 @@ def main(
 				ui.label('Errors Here')
 				global uiErrors
 				uiErrors = ui.log(max_lines=30).classes("flex-grow h-40").style('white-space: normal') 
-				uiErrors.push("Start of errors")
-				uiErrors.push("This is a very long line ----------- -------- -------- ------------ ----------")
+				uiErrors.push("-- Start of errors --")
 	
 	# Set Up Shutdown Trigger
 	global shutDownEvent

@@ -13,7 +13,7 @@ def sendApiRequest(url, body):
 	try:
 		response = requests.post(url, json = body)
 	except Exception as e:
-		vars.errors.append(f"->apiError: {e}")
+		vars.errors.append(vars.Error(f"->apiError: {e}"))
 		return(None)
 	
 	
@@ -21,13 +21,13 @@ def sendApiRequest(url, body):
 	try:
 		response = response.json()
 	except Exception as e:
-		vars.errors.append(f"->apiError: {e}")
+		vars.errors.append(vars.Error(f"->apiError: {e}"))
 		return(None)
 	
 	
 	# Handle API Error
 	if("error" in response and response["error"] != ""):
-		vars.errors.append(f"->apiError: {response['error']}")
+		vars.errors.append(vars.Error(f"->apiError: {response['error']}"))
 		return(None)
 	
 	return(response)
@@ -162,7 +162,7 @@ def getAllStops(
 				vars.routes[routeId].stops.append(vars.busStops[stopId])
 		
 	except Exception as e:
-		vars.errors.append("->BusStopError:"+str(e))
+		vars.errors.append(vars.Error(f"->BusStopError: {e}"))
 		
 	
 	
@@ -283,7 +283,7 @@ def getBuses(
 		
 		
 	except Exception as e:
-		vars.errors.append(f"->GetBusesError:{e} --- Data:{buses}")
+		vars.errors.append(vars.Error(f"->GetBusesError:{e} --- Data:{buses}"))
 	
 	
 	return(buses)
@@ -310,7 +310,7 @@ def launchWS():
 	
 	
 def handleWsError(wsapp, error):
-	vars.errors.append(f"->WebSocketError: {error}")
+	vars.errors.append(vars.Error(f"->WebSocketError: {error}"))
 	
 def handleWsClose(wsapp, close_status_code, close_msg):
 	wsapp.close()

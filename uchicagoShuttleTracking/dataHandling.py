@@ -34,7 +34,7 @@ def handleNewWsMessage(wsapp, message):
 			closestStop, stopDistance = vars.currentBuses[message["busId"]].getClosestStop()
 		except Exception as e:
 			closestStop, stopDistance = None, None
-			vars.errors.append("->Error Getting Closest Stop: " + str(e))
+			vars.errors.append(vars.Error(f"->Error Getting Closest Stop: {e}"))
 		
 		
 		if(vars.currentBuses[message["busId"]].paxBeforeArrival == None):
@@ -104,12 +104,12 @@ def handleNewWsMessage(wsapp, message):
 			
 		
 		# Log New Data
-		vars.recentMsgs.append(
-			"#"+str(message["busId"])+"\t"+str(message["paxLoad"])+" pax\tLat/Lon: "+str(message["latitude"])+"/"+str(message["longitude"])+"\t"+displayMsgStop
-		)
+		vars.recentMsgs.append(vars.LiveData(
+			f"#{message['busId']}\t{message['paxLoad']} pax\tLat/Lon: {message['latitude']}/{message['longitude']}\t{displayMsgStop}"
+		))
 		
 	except Exception as e:
-		vars.errors.append("->MessageHandlingError:"+str(e))
+		vars.errors.append(vars.Error(f"->MessageHandlingError:{e}"))
 	
 
 def uploadNumShuttlesData(cnx):
