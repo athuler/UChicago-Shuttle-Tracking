@@ -371,6 +371,7 @@ def updater(quitOnUpdateAvailable = True):
 				time.sleep(5)
 		except Exception as e:
 			vars.errors.append(vars.Error(f"Error in the Updater! {e}"))
+			time.sleep(5)
 	print("Updater Closed")
 
 
