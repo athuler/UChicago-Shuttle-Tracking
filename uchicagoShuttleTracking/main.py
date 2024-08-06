@@ -490,7 +490,7 @@ def main(
 		print("Interrupted")
 		exitCode = 1
 		shutDownEvent.clear()
-		break
+		#break
 	
 	# Shut Down Sequence
 	print("Shutting Down...")
