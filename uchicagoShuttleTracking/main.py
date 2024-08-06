@@ -350,7 +350,7 @@ def updater(quitOnUpdateAvailable = True):
 		
 		
 		# Get Running Vs Installed Versions
-		reqs = subprocess.run([sys.executable, '-m', 'pip', 'show', 'Python-Packaging-Test'], capture_output=True).stdout
+		reqs = subprocess.run([sys.executable, '-m', 'pip', 'show', 'UChicago-Shuttle-Tracking'], capture_output=True).stdout
 		for pkg in reqs.split(b"\r\n"):
 			if("Version" not in str(pkg)):
 				continue
