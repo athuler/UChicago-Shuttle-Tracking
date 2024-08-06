@@ -6,7 +6,9 @@ import threading
 import subprocess
 from random import randint
 from nicegui import app,ui
+from importlib import reload
 from datetime import datetime
+
 
 from uchicagoShuttleTracking.apiMethods import *
 from uchicagoShuttleTracking.dataHandling import *
@@ -100,6 +102,8 @@ def dataUploadThread():
 			):
 				vars.logs.append(vars.Log("Reconnecting to DataBase..."))
 				cnx = dbConnect()
+	
+	print("Closing DB Connection...")
 	try:
 		cnx.close()
 		print("DB Connection Closed")
@@ -413,48 +417,49 @@ def main(
 	)
 	
 	# Set Up GUI
-	ui.page_title('UChicago Shuttle Tracking')
-	ui.dark_mode().enable()
 	with ui.column():
-		ui.label('UChicago Shuttles').classes('text-h3')
-		ui_date()
-		with ui.row().classes("w-full"):
-			ui_shuttles()
-			with ui.column().classes('w-1/4'):
+		ui.page_title('UChicago Shuttle Tracking')
+		ui.dark_mode().enable()
+		with ui.column():
+			ui.label('UChicago Shuttles').classes('text-h3')
+			ui_date()
+			with ui.row().classes("w-full"):
+				ui_shuttles()
+				with ui.column().classes('w-1/4'):
+					
+					# Alerts
+					ui.label('System Alerts')
+					global uiAlerts
+					uiAlerts = ui.log(max_lines=30).classes("flex-grow h-40").style('white-space: normal') 
+					uiAlerts.push("Start of System Alerts")
+					uiAlerts.push("This is a very long line ----------- -------- -------- ------------ ----------")
+					
+					# Live Data
+					ui.label('Live Data')
+					global uiLiveData
+					uiLiveData = ui.log(max_lines=30).classes("flex-grow h-30").style('white-space: normal') 
+					uiLiveData.push("-- Start of Live Data --")
+					
+					# Stop Events
+					ui.label('Recent Stop Events')
+					global uiStopEvents
+					uiStopEvents = ui.log(max_lines=30).classes("flex-grow h-30").style('white-space: normal') 
+					uiStopEvents.push("-- Start of Stop Events --")
+					
 				
-				# Alerts
-				ui.label('System Alerts')
-				global uiAlerts
-				uiAlerts = ui.log(max_lines=30).classes("flex-grow h-40").style('white-space: normal') 
-				uiAlerts.push("Start of System Alerts")
-				uiAlerts.push("This is a very long line ----------- -------- -------- ------------ ----------")
-				
-				# Live Data
-				ui.label('Live Data')
-				global uiLiveData
-				uiLiveData = ui.log(max_lines=30).classes("flex-grow h-30").style('white-space: normal') 
-				uiLiveData.push("-- Start of Live Data --")
-				
-				# Stop Events
-				ui.label('Recent Stop Events')
-				global uiStopEvents
-				uiStopEvents = ui.log(max_lines=30).classes("flex-grow h-30").style('white-space: normal') 
-				uiStopEvents.push("-- Start of Stop Events --")
-				
-			
-			with ui.column().classes('w-1/4'):
-				
-				# Logs
-				ui.label('Logs Here')
-				global uiLogs
-				uiLogs = ui.log(max_lines=30).classes("flex-grow h-40").style('white-space: normal') 
-				uiLogs.push("-- Start of logs --")
-				
-				# Errors
-				ui.label('Errors Here')
-				global uiErrors
-				uiErrors = ui.log(max_lines=30).classes("flex-grow h-40").style('white-space: normal') 
-				uiErrors.push("-- Start of errors --")
+				with ui.column().classes('w-1/4'):
+					
+					# Logs
+					ui.label('Logs Here')
+					global uiLogs
+					uiLogs = ui.log(max_lines=30).classes("flex-grow h-40").style('white-space: normal') 
+					uiLogs.push("-- Start of logs --")
+					
+					# Errors
+					ui.label('Errors Here')
+					global uiErrors
+					uiErrors = ui.log(max_lines=30).classes("flex-grow h-40").style('white-space: normal') 
+					uiErrors.push("-- Start of errors --")
 	
 	# Set Up Shutdown Trigger
 	global shutDownEvent
