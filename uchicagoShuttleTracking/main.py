@@ -385,7 +385,7 @@ def wsManager():
 def main(
 	quitOnUpdateAvailable = False,
 	version = None,
-	pipUrl = None
+	pipUrl = None,
 	DB_HOST = None,
 	DB_NAME = None,
 	DB_USER = None,
