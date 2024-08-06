@@ -384,6 +384,7 @@ def wsManager():
 def main(
 	quitOnUpdateAvailable = False,
 	version = None,
+	pipUrl = None
 	DB_HOST = None,
 	DB_NAME = None,
 	DB_USER = None,
@@ -391,6 +392,9 @@ def main(
 ):
 	global __version__
 	__version__ = version
+	
+	global PIP_URL
+	PIP_URL = pipUrl
 	
 	
 	exitCode = 0
