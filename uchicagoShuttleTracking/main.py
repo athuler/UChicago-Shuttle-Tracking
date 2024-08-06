@@ -121,6 +121,7 @@ def displayThread():
 		
 		# Delay
 		time.sleep(1)
+	app.shutdown()
 	print("Display Closed")
 
 
@@ -478,17 +479,18 @@ def main(
 	t5_updater.start()
 	
 		
-	while shutDownEvent.is_set():
-		try:
-			ui.run(
-				show = False,
-				reload = False
-			)
-		except KeyboardInterrupt:
-			print("Interrupted")
-			exitCode = 1
-			shutDownEvent.clear()
-			break
+	#while shutDownEvent.is_set():
+	try:
+		ui.run(
+			show = False,
+			reload = False
+		)
+		print("GUI Closed")
+	except KeyboardInterrupt:
+		print("Interrupted")
+		exitCode = 1
+		shutDownEvent.clear()
+		break
 	
 	# Shut Down Sequence
 	print("Shutting Down...")
