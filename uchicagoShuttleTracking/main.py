@@ -348,7 +348,7 @@ def refreshLogs(uiElement, listOfObjects, maxNumOfElements = 30):
 # END Refreshable GUI Elements
 
 
-def updater(quitOnUpdateAvailable = True):
+async def updater(quitOnUpdateAvailable = True):
 	installed_version = None
 	while shutDownEvent.is_set():
 		try:
@@ -377,7 +377,7 @@ def updater(quitOnUpdateAvailable = True):
 				
 				if quitOnUpdateAvailable:
 					shutDownEvent.clear()
-					app.shutdown()
+					await app.shutdown()
 			else:
 				# No update necessary
 				time.sleep(5)
@@ -394,7 +394,7 @@ def wsManager():
 		vars.logs.append(vars.Log("WebSocket Closed. Reconnecting..."))
 
 
-def main(
+async def main(
 	quitOnUpdateAvailable = False,
 	version = None,
 	pipUrl = None,
@@ -422,7 +422,7 @@ def main(
 	)
 	
 	# Set Up GUI
-	with ui.page('/'):
+	with ui.column():
 		ui.page_title('UChicago Shuttle Tracking')
 		ui.dark_mode().enable()
 		with ui.column():
@@ -504,7 +504,7 @@ def main(
 	
 	# Shut Down Sequence
 	print("Shutting Down...")
-	app.shutdown()
+	await app.shutdown()
 	t1_dataRefresh.join()
 	#t2_launchWs.join()
 	t3_display.join()
