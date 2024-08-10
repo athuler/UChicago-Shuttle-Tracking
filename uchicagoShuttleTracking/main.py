@@ -113,15 +113,19 @@ def dataUploadThread():
 
 def displayThread():
 	while shutDownEvent.is_set():
-		# Refresh Console
-		refreshDisplay()
-		
-		# Refresh GUI
-		ui_shuttles.refresh()
-		ui_date.refresh()
-		ui_logs()
-		ui_errors()
-		ui_liveData()
+		try:
+			# Refresh Console
+			refreshDisplay()
+			
+			# Refresh GUI
+			ui_shuttles.refresh()
+			ui_date.refresh()
+			ui_logs()
+			ui_errors()
+			ui_liveData()
+		except Exception as e:
+			vars.errors(vars.Error(f"ERROR Displaying Data: {e}"))
+			print(f"ERROR Displaying Data: {e}")
 		
 		# Delay
 		time.sleep(1)
