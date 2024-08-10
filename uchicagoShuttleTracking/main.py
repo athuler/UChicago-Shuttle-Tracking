@@ -2,6 +2,7 @@
 import os
 import sys
 import time
+import asyncio
 import threading
 import subprocess
 from random import randint
@@ -421,7 +422,7 @@ def main(
 	)
 	
 	# Set Up GUI
-	with ui.column():
+	with ui.page('/')::
 		ui.page_title('UChicago Shuttle Tracking')
 		ui.dark_mode().enable()
 		with ui.column():
