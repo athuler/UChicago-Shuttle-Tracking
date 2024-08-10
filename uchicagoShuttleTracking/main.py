@@ -421,6 +421,8 @@ def main(
 		DB_PASS,
 	)
 	
+	print(f"Main Thread? (Just Before GUI) {threading.current_thread() is threading.main_thread()}")
+	
 	# Set Up GUI
 	with ui.column():
 		ui.page_title('UChicago Shuttle Tracking')
@@ -491,6 +493,7 @@ def main(
 		
 	#while shutDownEvent.is_set():
 	try:
+		print(f"Main Thread? (Before Run) {threading.current_thread() is threading.main_thread()}")
 		ui.run(
 			show = False,
 			reload = False
