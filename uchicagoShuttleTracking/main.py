@@ -422,7 +422,7 @@ def main(
 	)
 	
 	# Set Up GUI
-	with ui.page('/')::
+	with ui.page('/'):
 		ui.page_title('UChicago Shuttle Tracking')
 		ui.dark_mode().enable()
 		with ui.column():
