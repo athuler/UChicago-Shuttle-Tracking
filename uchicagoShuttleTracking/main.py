@@ -6,15 +6,18 @@ import asyncio
 import threading
 import subprocess
 from random import randint
-from nicegui import app,ui
+from nicegui import app, ui
 from importlib import reload
 from datetime import datetime
+
 
 
 from uchicagoShuttleTracking.apiMethods import *
 from uchicagoShuttleTracking.dataHandling import *
 from uchicagoShuttleTracking.dbMethods import *
 import uchicagoShuttleTracking.vars as vars
+
+
 
 
 def refreshData():
@@ -125,7 +128,7 @@ def displayThread():
 			ui_errors()
 			ui_liveData()
 		except Exception as e:
-			vars.errors(vars.Error(f"ERROR Displaying Data: {e}"))
+			vars.errors.append(vars.Error(f"ERROR Displaying Data: {e}"))
 			print(f"ERROR Displaying Data: {e}")
 		
 		# Delay
@@ -348,6 +351,7 @@ def refreshLogs(uiElement, listOfObjects, maxNumOfElements = 30):
 # END Refreshable GUI Elements
 
 
+
 def updater(quitOnUpdateAvailable = True):
 	installed_version = None
 	while shutDownEvent.is_set():
@@ -403,6 +407,8 @@ def main(
 	DB_USER = None,
 	DB_PASS = None,
 ):
+	
+	
 	global __version__
 	__version__ = version
 	
@@ -422,6 +428,7 @@ def main(
 	)
 	
 	print(f"Main Thread? (Just Before GUI) {threading.current_thread() is threading.main_thread()}")
+	print(f"Active Threads: {threading.active_count()}")
 	
 	# Set Up GUI
 	with ui.column():
@@ -514,6 +521,11 @@ def main(
 	t4_dataUpload.join()
 	t5_updater.join()
 	print("Shut down!")
+	print(f"Active Threads: {threading.active_count()}")
+	for thread in threading.enumerate():
+		print(thread.name)
+	
+	sys.exit(exitCode)
 	return(exitCode)
 
 
