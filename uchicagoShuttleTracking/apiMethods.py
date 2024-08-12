@@ -131,8 +131,12 @@ def getAllStops(
 		
 		# Save All Bus Stops
 		for index, stop in stops["stops"].items():
-			vars.busStops[int(stop["stopId"])] = vars.BusStop(
-				id = int(stop["stopId"]),
+			if "stopId" not in stop:
+				continue
+			
+			
+			vars.busStops[stop["stopId"]] = vars.BusStop(
+				id = stop["stopId"],
 				name = stop["name"],
 				lat = stop["latitude"],
 				lon = stop["longitude"]
@@ -148,7 +152,7 @@ def getAllStops(
 			vars.routes[routeId].stops = []
 			
 			for stop in route[3:]:
-				stopId = int(stop[1])
+				stopId = stop[1]
 				
 				
 				# Add Route to Bus Stop

@@ -130,7 +130,7 @@ class Bus:
 		return(nextStops)
 			
 	def recordStopEvent(self):
-		logs.append(vars.Log(f"recordStopEvent Triggered for {self.routeName} at {self.recentStop.name}"))
+		logs.append(Log(f"recordStopEvent Triggered for {self.routeName} at {self.recentStop.name}"))
 		
 		paxLoad = self.pax - self.paxBeforeArrival
 		if(paxLoad < 0):

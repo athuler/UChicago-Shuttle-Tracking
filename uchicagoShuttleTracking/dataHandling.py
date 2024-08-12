@@ -9,7 +9,6 @@ def handleNewWsMessage(wsapp, message):
 		message = json.loads(str(message))
 		
 		
-		
 		# Handle Bus Data
 		if(message["busId"] not in vars.currentBuses):
 			vars.currentBuses[message["busId"]] = vars.Bus(message["busId"])
@@ -29,6 +28,8 @@ def handleNewWsMessage(wsapp, message):
 		# Update Ping
 		vars.currentBuses[message["busId"]].last_ping = datetime.now()
 		
+		
+		
 		# Get Closest Stop
 		try:
 			closestStop, stopDistance = vars.currentBuses[message["busId"]].getClosestStop()
@@ -37,14 +38,15 @@ def handleNewWsMessage(wsapp, message):
 			vars.errors.append(vars.Error(f"->Error Getting Closest Stop: {e}"))
 		
 		
+		
 		if(vars.currentBuses[message["busId"]].paxBeforeArrival == None):
 			# Record passenger count before next stop
 			vars.currentBuses[message["busId"]].paxBeforeArrival = vars.currentBuses[message["busId"]].pax
+	
 		
 		
 		if(closestStop == None):
 			# Bus Is Not At A Stop
-			
 			
 			if(vars.currentBuses[message["busId"]].atStop == True):
 				# Bus Was At A Stop
@@ -52,12 +54,14 @@ def handleNewWsMessage(wsapp, message):
 				vars.currentBuses[message["busId"]].recordStopEvent()
 				# Record passenger count before next stop
 				vars.currentBuses[message["busId"]].paxBeforeArrival = vars.currentBuses[message["busId"]].pax
-				
+			
+			
 			# Set Bus Status
 			vars.currentBuses[message["busId"]].status = "Traveling"
 			vars.currentBuses[message["busId"]].atStop = False
 			displayMsgStop = ""
 			
+					
 			
 			
 			
@@ -74,7 +78,6 @@ def handleNewWsMessage(wsapp, message):
 		
 		else:
 			# Bus Is At A New Stop
-			
 			
 			
 			if(vars.currentBuses[message["busId"]].atStop == True):
@@ -108,8 +111,9 @@ def handleNewWsMessage(wsapp, message):
 			f"#{message['busId']}\t{message['paxLoad']} pax\tLat/Lon: {message['latitude']}/{message['longitude']}\t{displayMsgStop}"
 		))
 		
+		
 	except Exception as e:
-		vars.errors.append(vars.Error(f"->MessageHandlingError:{e}"))
+		vars.errors.append(vars.Error(f"->MessageHandlingError: {e}"))
 	
 
 def uploadNumShuttlesData(cnx):

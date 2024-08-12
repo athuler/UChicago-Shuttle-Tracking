@@ -123,10 +123,11 @@ def displayThread():
 			
 			# Refresh GUI
 			ui_shuttles.refresh()
-			ui_date.refresh()
+			ui_subtitle.refresh()
 			ui_logs()
 			ui_errors()
 			ui_liveData()
+			ui_stopEvents()
 		except Exception as e:
 			vars.errors.append(vars.Error(f"ERROR Displaying Data: {e}"))
 			print(f"ERROR Displaying Data: {e}")
@@ -314,8 +315,8 @@ def ui_shuttles() -> None:
 	''')
 
 @ui.refreshable
-def ui_date() -> None:
-	ui.html(f"<i>Last Updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>")
+def ui_subtitle() -> None:
+	ui.html(f"<b>Version</b>: <i>{__version__}</i> | <b>Last Updated</b>: <i>{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>")
 
 def ui_logs() -> None:
 	global uiLogs
@@ -349,7 +350,6 @@ def refreshLogs(uiElement, listOfObjects, maxNumOfElements = 30):
 	
 
 # END Refreshable GUI Elements
-
 
 
 def updater(quitOnUpdateAvailable = True):
@@ -427,8 +427,6 @@ def main(
 		DB_PASS,
 	)
 	
-	print(f"Main Thread? (Just Before GUI) {threading.current_thread() is threading.main_thread()}")
-	print(f"Active Threads: {threading.active_count()}")
 	
 	# Set Up GUI
 	with ui.column():
@@ -436,7 +434,7 @@ def main(
 		ui.dark_mode().enable()
 		with ui.column():
 			ui.label('UChicago Shuttles').classes('text-h3')
-			ui_date()
+			ui_subtitle()
 			with ui.row().classes("w-full"):
 				ui_shuttles()
 				with ui.column().classes('w-1/4'):
@@ -500,7 +498,6 @@ def main(
 		
 	#while shutDownEvent.is_set():
 	try:
-		print(f"Main Thread? (Before Run) {threading.current_thread() is threading.main_thread()}")
 		ui.run(
 			show = False,
 			reload = False
@@ -521,9 +518,6 @@ def main(
 	t4_dataUpload.join()
 	t5_updater.join()
 	print("Shut down!")
-	print(f"Active Threads: {threading.active_count()}")
-	for thread in threading.enumerate():
-		print(thread.name)
 	
 	sys.exit(exitCode)
 	return(exitCode)
