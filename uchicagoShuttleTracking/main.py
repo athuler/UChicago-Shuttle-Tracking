@@ -293,6 +293,9 @@ def ui_shuttles() -> None:
 	# Iterate Through Each Bus
 	for index, bus in {key: val for key, val in sorted(vars.currentBuses.items(), key = lambda ele: str(ele[1].route))}.items():
 		
+		if bus.route is not None and "cta" in bus.route:
+			continue
+		
 		rows.append({
 			'name': bus.routeName,
 			'route': bus.route,
