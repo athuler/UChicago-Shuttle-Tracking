@@ -154,10 +154,11 @@ def uploadNumShuttlesData(cnx):
 	cursor = cnx.cursor()
 	insertData = (
 		"INSERT INTO NumShuttlesRunning "
-		"(NumShuttlesRunning, RouteBreakdown, NumAggPassengers, NumShuttlesOOS, NumShuttlesNoGPS) "
-		"VALUES (%(NumShuttlesRunning)s, %(RouteBreakdown)s, %(NumAggPassengers)s, %(NumShuttlesOOS)s, %(NumShuttlesNoGPS)s)"
+		"(timestamp, NumShuttlesRunning, RouteBreakdown, NumAggPassengers, NumShuttlesOOS, NumShuttlesNoGPS) "
+		"VALUES (%(timestamp)s, %(NumShuttlesRunning)s, %(RouteBreakdown)s, %(NumAggPassengers)s, %(NumShuttlesOOS)s, %(NumShuttlesNoGPS)s)"
 	)
 	data = {
+		'timestamp': datetime.now(timezone.utc),
 		'NumShuttlesRunning': NumShuttlesRunning,
 		'RouteBreakdown': json.dumps(RouteBreakdown),
 		'NumAggPassengers': NumAggPassengers,
@@ -259,4 +260,3 @@ def uploadStopEvents(cnx):
 		cursor.execute(insertData, data)
 		cnx.commit()
 	cursor.close()
-	
