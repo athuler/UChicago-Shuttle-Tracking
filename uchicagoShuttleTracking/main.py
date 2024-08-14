@@ -8,7 +8,7 @@ import subprocess
 from random import randint
 from nicegui import app, ui
 from importlib import reload
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 
@@ -29,7 +29,7 @@ def refreshData():
 		try:
 			while(
 				lastRefreshDataDate != None and
-				(datetime.now() - lastRefreshDataDate).seconds < 15
+				(datetime.now(timezone.utc) - lastRefreshDataDate).seconds < 15
 				and shutDownEvent.is_set()
 			):
 				time.sleep(0.2)
@@ -45,7 +45,7 @@ def refreshData():
 					break
 				getData()
 			
-			lastRefreshDataDate = datetime.now()
+			lastRefreshDataDate = datetime.now(timezone.utc)
 			vars.logs.append(vars.Log("Data Reloaded!"))
 		except Exception as e:
 			vars.errors.append(vars.Error("->ErrorRefreshingData: "+str(e)))
@@ -64,17 +64,17 @@ def dataUploadThread():
 	
 	# Define Data Streams
 	uploadDetails["NumShuttles"] = {
-		"lastUpload": datetime.now(),
+		"lastUpload": datetime.now(timezone.utc),
 		"freq": 60,
 		"func": uploadNumShuttlesData
 	}
 	uploadDetails["Alerts"] = {
-		"lastUpload": datetime.now(),
+		"lastUpload": datetime.now(timezone.utc),
 		"freq": 60,
 		"func": uploadAlertsData
 	}
 	uploadDetails["StopEvents"] = {
-		"lastUpload": datetime.now(),
+		"lastUpload": datetime.now(timezone.utc),
 		"freq": 5,
 		"func": uploadStopEvents
 	}
@@ -88,11 +88,11 @@ def dataUploadThread():
 				if(
 					uploadData["freq"] == None 
 					or
-					(datetime.now() - uploadData["lastUpload"]).seconds < uploadData["freq"]
+					(datetime.now(timezone.utc) - uploadData["lastUpload"]).seconds < uploadData["freq"]
 				):
 					continue
 				
-				uploadData["lastUpload"] = datetime.now()
+				uploadData["lastUpload"] = datetime.now(timezone.utc)
 				uploadData["func"](cnx)
 				vars.logs.append(vars.Log(f"Data Uploaded - {key}"))
 			time.sleep(0.25)
@@ -319,7 +319,7 @@ def ui_shuttles() -> None:
 
 @ui.refreshable
 def ui_subtitle() -> None:
-	ui.html(f"<b>Version</b>: <i>{__version__}</i> | <b>Last Updated</b>: <i>{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>")
+	ui.html(f"<b>Version</b>: <i>{__version__}</i> | <b>Last Updated</b>: <i>{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}</i>")
 
 def ui_logs() -> None:
 	global uiLogs

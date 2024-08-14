@@ -1,6 +1,6 @@
 import json
 import geopy.distance
-from datetime import datetime
+from datetime import datetime, timezone
 
 import uchicagoShuttleTracking.vars as vars
 
@@ -26,7 +26,7 @@ def handleNewWsMessage(wsapp, message):
 		
 		
 		# Update Ping
-		vars.currentBuses[message["busId"]].last_ping = datetime.now()
+		vars.currentBuses[message["busId"]].last_ping = datetime.now(timezone.utc)
 		
 		
 		
@@ -102,7 +102,7 @@ def handleNewWsMessage(wsapp, message):
 			displayMsgStop = "Stop: " + str(closestStop.name) + " (new)"
 			
 			# Stop Event Timing
-			vars.currentBuses[message["busId"]].timeArrivedAtStop = datetime.now()
+			vars.currentBuses[message["busId"]].timeArrivedAtStop = datetime.now(timezone.utc)
 			
 			
 		
@@ -216,7 +216,7 @@ def uploadAlertsData(cnx):
 			'authorId': alert["authorId"],
 			'authorName': alert["author"],
 			'timeUpdated': alert["updated"],
-			'timeLastObserved': datetime.now(),
+			'timeLastObserved': datetime.now(timezone.utc),
 		}
 		cursor.execute(query, data)
 		

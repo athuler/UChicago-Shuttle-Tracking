@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from geopy import distance
 import pyproj
 import yaml
@@ -28,7 +28,7 @@ class Bus:
 		if(self.last_ping == None):
 			return None
 		
-		return round((datetime.now() - self.last_ping).total_seconds())
+		return round((datetime.now(timezone.utc) - self.last_ping).total_seconds())
 	
 	def getClosestStop(
 		self,
@@ -142,7 +142,7 @@ class Bus:
 			routeName = self.routeName,
 			busId = self.id,
 			arrivalTime = self.timeArrivedAtStop,
-			departureTime = datetime.now(),
+			departureTime = datetime.now(timezone.utc),
 			passengerLoad = paxLoad,
 			nextStop = self.nextStop()
 		))
