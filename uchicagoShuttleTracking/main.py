@@ -11,12 +11,10 @@ from importlib import reload
 from datetime import datetime, timezone
 
 
-
 from uchicagoShuttleTracking.apiMethods import *
 from uchicagoShuttleTracking.dataHandling import *
 from uchicagoShuttleTracking.dbMethods import *
 import uchicagoShuttleTracking.vars as vars
-
 
 
 
@@ -51,7 +49,6 @@ def refreshData():
 			vars.errors.append(vars.Error("->ErrorRefreshingData: "+str(e)))
 	
 	print("Data Refresh Closed")
-
 
 def dataUploadThread():
 	
@@ -113,7 +110,6 @@ def dataUploadThread():
 		print("DB Connection Closed")
 	except Exception as e:
 		print("ERROR Closing Connection")
-	
 
 def displayThread():
 	while shutDownEvent.is_set():
@@ -124,6 +120,7 @@ def displayThread():
 			# Refresh GUI
 			ui_shuttles.refresh()
 			ui_subtitle.refresh()
+			ui_systemAlerts.refresh()
 			ui_logs()
 			ui_errors()
 			ui_liveData()
@@ -136,7 +133,6 @@ def displayThread():
 		time.sleep(1)
 	app.shutdown()
 	print("Display Closed")
-
 
 def refreshDisplay():
 	os.system('cls||clear')
@@ -276,6 +272,7 @@ def refreshDisplay():
 	
 	print("========================")
 
+
 # START Refreshable GUI Elements
 
 @ui.refreshable
@@ -319,7 +316,13 @@ def ui_shuttles() -> None:
 
 @ui.refreshable
 def ui_subtitle() -> None:
-	ui.html(f"<b>Version</b>: <i>{__version__}</i> | <b>Last Updated</b>: <i>{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}</i>")
+	ui.html(f"<b>Version</b>: <i>{__version__}</i> | <b>Last Updated</b>: <i>{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC</i>")
+
+@ui.refreshable
+def ui_systemAlerts() -> None:
+	with ui.list().props('dense separator'):
+		for alert in vars.systemAlerts:
+			ui.item(alert["gtfsAlertDescriptionText"])
 
 def ui_logs() -> None:
 	global uiLogs
@@ -444,10 +447,7 @@ def main(
 					
 					# Alerts
 					ui.label('System Alerts')
-					global uiAlerts
-					uiAlerts = ui.log(max_lines=30).classes("flex-grow h-40").style('white-space: normal') 
-					uiAlerts.push("Start of System Alerts")
-					uiAlerts.push("This is a very long line ----------- -------- -------- ------------ ----------")
+					ui_systemAlerts()
 					
 					# Live Data
 					ui.label('Live Data')
