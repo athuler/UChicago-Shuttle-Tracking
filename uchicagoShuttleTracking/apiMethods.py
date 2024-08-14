@@ -13,7 +13,7 @@ def sendApiRequest(url, body):
 	try:
 		response = requests.post(url, json = body)
 	except Exception as e:
-		vars.errors.append(vars.Error(f"->apiError: {e}"))
+		vars.errors.append(vars.Error(f"->apiError: Error Sending Request! {e}"))
 		return(None)
 	
 	
@@ -21,13 +21,13 @@ def sendApiRequest(url, body):
 	try:
 		response = response.json()
 	except Exception as e:
-		vars.errors.append(vars.Error(f"->apiError: {e}"))
+		vars.errors.append(vars.Error(f"->apiError: Error converting from JSON! {e} ||| Raw response: {response.text}"))
 		return(None)
 	
 	
 	# Handle API Error
 	if("error" in response and response["error"] != ""):
-		vars.errors.append(vars.Error(f"->apiError: {response['error']}"))
+		vars.errors.append(vars.Error(f"->apiError: Error in Response! {response['error']}"))
 		return(None)
 	
 	return(response)
