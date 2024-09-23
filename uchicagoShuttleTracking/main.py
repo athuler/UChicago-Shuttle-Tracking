@@ -30,7 +30,7 @@ def refreshData():
 				(datetime.now(timezone.utc) - lastRefreshDataDate).seconds < 15
 				and shutDownEvent.is_set()
 			):
-				time.sleep(0.2)
+				time.sleep(1)
 			
 			dataSources = [
 				getAllRoutes,
@@ -92,7 +92,7 @@ def dataUploadThread():
 				uploadData["lastUpload"] = datetime.now(timezone.utc)
 				uploadData["func"](cnx)
 				vars.logs.append(vars.Log(f"Data Uploaded - {key}"))
-			time.sleep(0.25)
+			time.sleep(1)
 		
 		
 		except Exception as e:
