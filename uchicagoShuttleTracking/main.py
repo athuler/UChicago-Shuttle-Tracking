@@ -130,7 +130,7 @@ def displayThread():
 			print(f"ERROR Displaying Data: {e}")
 		
 		# Delay
-		time.sleep(1)
+		time.sleep(2)
 	app.shutdown()
 	print("Display Closed")
 
@@ -390,10 +390,12 @@ def updater(quitOnUpdateAvailable = True):
 					app.shutdown()
 			else:
 				# No update necessary
-				time.sleep(5)
+                ...
 		except Exception as e:
 			vars.errors.append(vars.Error(f"Error in the Updater! {e}"))
-			time.sleep(5)
+		
+        # 30s Delay
+        time.sleep(30)
 	print("Updater Closed")
 
 
