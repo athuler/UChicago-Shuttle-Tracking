@@ -3,5 +3,6 @@ mysql-connector-python==8.3.0
 requests>=2.0
 pyproj==3.6.1
 PyYAML>=6.0
+nicegui
 websocket-client>=1.2.0
 passiogo>=0.2
