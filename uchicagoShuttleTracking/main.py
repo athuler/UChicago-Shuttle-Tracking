@@ -390,12 +390,12 @@ def updater(quitOnUpdateAvailable = True):
 					app.shutdown()
 			else:
 				# No update necessary
-                ...
+				...
 		except Exception as e:
 			vars.errors.append(vars.Error(f"Error in the Updater! {e}"))
 		
-        # 30s Delay
-        time.sleep(30)
+		# 30s Delay
+		time.sleep(30)
 	print("Updater Closed")
 
 
