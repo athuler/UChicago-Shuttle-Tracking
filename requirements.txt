@@ -1,5 +1,5 @@
 geopy>=2.0.0
-mysql-connector-python==8.3.0
+mysql-connector-python==9.1.0
 requests>=2.0
 pyproj==3.6.1
 PyYAML>=6.0
