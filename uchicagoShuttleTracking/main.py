@@ -32,6 +32,20 @@ def refreshData():
 			):
 				time.sleep(1)
 			
+
+			# Remove excess logs and errors
+			# to prevent memory leak
+			while len(vars.logs) > 1000:
+				vars.logs.pop(0)
+			while len(vars.errors) > 1000:
+				vars.errors.pop(0)
+			while len(vars.recentMsgs) > 1000:
+				vars.recentMsgs.pop(0)
+			while len(vars.stopEvents) > 1000:
+				vars.stopEvents.pop(0)
+			
+
+
 			dataSources = [
 				getAllRoutes,
 				getAllStops,
