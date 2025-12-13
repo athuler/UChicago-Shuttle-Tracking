@@ -1,6 +1,9 @@
-[![Better Stack Badge](https://uptime.betterstack.com/status-badges/v2/monitor/15u11.svg)](https://status.andreithuler.com)
+> [!WARNING]  
+> This project has been archived and is no longer being maintained or updated. Read more about it [here](https://uchicagoshuttles.com).
+
 # UChicago Shuttle Tracking
 
+This repository contains the code that continuously analyzed the performance of the University of Chicago shuttle system. Read more about it at [uchicagoshuttles.com](https://uchicagoshuttles.com).
  
 ## Secrets
 
